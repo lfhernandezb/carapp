@@ -158,25 +158,8 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 							<script type="text/javascript">
 								
 								$(document).ready(function() {
-									<{if $usuarioPuedeAgregar}>
-										$('#agrega_repuesto').attr('checked','checked');
-									<{else}>
-										$('#agrega_repuesto').removeAttr('checked');
-									<{/if}>
 
-									<{if $usuarioPuedeUtilizar}>
-										$('#utiliza_repuesto').attr('checked','checked');
-									<{else}>
-										$('#utiliza_repuesto').removeAttr('checked');
-									<{/if}>
-
-									<{if $reset_pwd}>
-										$('#reset_password').attr('checked','checked');
-									<{else}>
-										$('#reset_password').removeAttr('checked');
-									<{/if}>
-
-									//$('#submit').attr('disabled', true);
+									$('#submit').attr('disabled', true);
 								}); // end ready
 							</script>
 		

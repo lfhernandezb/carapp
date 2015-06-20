@@ -4,6 +4,7 @@ include_once('GenericCommand.php');
 include_once('../classes/Repuesto.php');
 include_once('../classes/Plataforma.php');
 include_once('../classes/Usuario.php');
+include_once('../classes/Util.php');
 
 class GestionaUsuarios extends GenericCommand{
 	function execute(){
@@ -77,7 +78,7 @@ class GestionaUsuarios extends GenericCommand{
 			HTTP_session::set('search_keyword_usuario_alt', array(
 				'activo'			=> $fc->request->activo,
 				'dias'				=> $fc->request->dias,
-				'auto'				=> $fc->request->ciudad,
+				'auto'				=> $fc->request->auto,
 				'km'				=> $fc->request->km,
 				'identificado'		=> null,
 				'no borrado'		=> null,
@@ -108,7 +109,7 @@ class GestionaUsuarios extends GenericCommand{
 			
 			$parameters['no borrado'] = null;
 			
-			$parameters['identificado'] = null;
+			//$parameters['identificado'] = null;
 			
 			$search_result = Usuario::seek($db, $parameters, 'u.fecha_modificacion', 'ASC', 0, 10000);
 			
@@ -189,6 +190,12 @@ class GestionaUsuarios extends GenericCommand{
 			
 			$search_keyword = HTTP_session::get('search_keyword_usuario_alt');
 			
+			ob_start();
+			var_dump($search_keyword);
+			$result = ob_get_clean();
+			
+			Util::write_to_log("search_keyword " . $result);
+			
 			// elimino el valor del form alternativo, para saber como se hizo la busqueda al volver a esta pantalla
 			
 			HTTP_session::set('search_keyword_usuario', null);
@@ -219,7 +226,7 @@ class GestionaUsuarios extends GenericCommand{
 			
 			$parameters['no borrado'] = null;
 			
-			$parameters['identificado'] = null;
+			//$parameters['identificado'] = null;
 			
 			$search_result = Usuario::seek($db, $parameters, 'u.fecha_modificacion', 'ASC', 0, 10000);
 			

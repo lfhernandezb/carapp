@@ -2,6 +2,8 @@
 
 include_once('GenericCommand.php');
 include_once('../classes/Campania.php');
+include_once('../classes/Util.php');
+include_once('../classes/class.datetimecalc.php');
 
 class AgregaCampania extends GenericCommand {
 	function execute(){
@@ -22,8 +24,8 @@ class AgregaCampania extends GenericCommand {
 		
 		// ayuda en pantalla
 		$user_help_desk = 
-			"Crea una campa&ntilde;a. Los campos marcados con * son obligatorios.<br>Accesos:<br><br>" .
-			"Agrega Campa&ntilde;a: Permite ingresar campa&ntilde;as en forma manual o masiva";
+			"Crea una campa&ntilde;a. Los campos marcados con * son obligatorios.<br>"; //Accesos:<br><br>" .
+			//"Agrega Campa&ntilde;a: Permite ingresar campa&ntilde;as en forma manual o masiva";
 		
 		$this->addVar('user_help_desk', $user_help_desk);
 		
@@ -38,7 +40,7 @@ class AgregaCampania extends GenericCommand {
 			$this->addVar('condicion', $v);
 			$this->addVar('detalle', $v);
 			$this->addVar('fecha_inicio', $v);
-			$this->addVar('fecha_fin', $v);
+			$this->addVar('dias', $v);
 			$this->addVar('periodicidad', $v);
 			$this->addVar('numero_impresiones', $v);
 
@@ -49,19 +51,6 @@ class AgregaCampania extends GenericCommand {
 			// submit, agrega campania... grabamos cambios
 			
 			$exito = null;
-			
-			$usuarioPuedeAgregar = false;
-			
-			$ar_accesos = $fc->request->accesos;
-			
-			if (is_array($ar_accesos)) {
-				if (array_key_exists(1, $ar_accesos)) {
-					// solicitado acceso a agregar
-					
-					$usuarioPuedeAgregar = true;
-				}
-			}
-			
 			
 			try {
 			
@@ -84,19 +73,26 @@ class AgregaCampania extends GenericCommand {
 					$campania->activa = 0;
 				}
 				
-				$campania->condicion = $fc->request->condicion;
-				$campania->detalle = mysql_real_escape_string(html_entity_decode($fc->request->detalle));
+				$campania->condicion = mysql_real_escape_string($fc->request->condicion);
+				$campania->detalle = $fc->request->detalle;
 				$campania->fecha_inicio = $fc->request->fecha_inicio;
-				$campania->fecha_fin = $fc->request->fecha_fin;
+				
+				// 2015-06-18 calculamos la fecha final en base a la fecha inicial y los dias ingresados
+				$dtc = new Date_Time_Calc($campania->fecha_inicio, 'Y-m-d');
+				$dtc->add("d", $fc->request->dias);
+				
+				Util::write_to_log("fecha_final " . $dtc->date_time);
+				
+				$campania->fecha_fin = $dtc->date_time;
 				$campania->periodicidad = $fc->request->periodicidad;
 				$campania->numero_impresiones = $fc->request->numero_impresiones;
-				
+								
 				$status_message = '';
 				
 				try {
 					
 					// valido el JSON de detalle
-					$json_detalle = json_decode(html_entity_decode($fc->request->detalle), true);
+					$json_detalle = json_decode($fc->request->detalle);
 					
 					if ($json_detalle == null) {
 						throw new Exception('Error, el JSON no es v&aacute;lido');
@@ -112,14 +108,6 @@ class AgregaCampania extends GenericCommand {
 					
 					$campania->insert($db);
 										
-					if ($usuarioPuedeAgregar) {
-						$campania->otorgaAcceso($db, 'agregar');
-					}
-
-					if ($usuarioPuedeUtilizar) {
-						$campania->otorgaAcceso($db, 'utilizar');
-					}
-					
 					// commit
 					if (!$db->TransactionEnd()) {
 						throw new Exception('Error al comitear transaccion: ' . $db->Error(), $db->ErrorNumber(), null);
@@ -128,7 +116,7 @@ class AgregaCampania extends GenericCommand {
 					// estatus exito
 					$exito = true;
 					
-					$status_message = 'Campa&ntilde;a agregado exitosamente';
+					$status_message = 'Campa&ntilde;a agregada exitosamente';
 					
 				} catch (Exception $e) {
 					// rollback
@@ -142,7 +130,7 @@ class AgregaCampania extends GenericCommand {
 				// estatus fracaso
 				$exito = false;
 				
-				$status_message = 'Campa&ntilde;a no pudo ser agregado. Raz&oacute;n: ' . $e->getMessage();
+				$status_message = 'Campa&ntilde;a no pudo ser agregada. Raz&oacute;n: ' . $e->getMessage();
 			}
 				
 			$this->addVar("exito", $exito);
@@ -157,12 +145,15 @@ class AgregaCampania extends GenericCommand {
 			// cargo en los textboxes los mismos valores pre submit
 			$fv=array();
 			
+			// para el correcto despliegue
+			$fc->request->detalle = htmlentities($fc->request->detalle, ENT_QUOTES);
+			
 			$fv[0]="descripcion";
 			$fv[1]="activa";
 			$fv[2]="condicion";
 			$fv[3]="detalle";
 			$fv[4]="fecha_inicio";
-			$fv[5]="fecha_fin";
+			$fv[5]="dias";
 			$fv[6]="periodicidad";
 			$fv[7]="numero_impresiones";
 			

@@ -2,6 +2,8 @@
 
 include_once('GenericCommand.php');
 include_once('../classes/Proveedor.php');
+include_once('../classes/ProveedorMantencionBase.php');
+include_once('../classes/MantencionBase.php');
 
 class AgregaProveedor extends GenericCommand {
 	function execute(){
@@ -16,10 +18,6 @@ class AgregaProveedor extends GenericCommand {
 
 		$this->addVar("message", $m);
 
-		$usuarioPuedeAgregar = null;
-		
-		$usuario = null;
-		
 		// ayuda en pantalla
 		$user_help_desk = 
 			"Crea un proveedor. Los campos marcados con * son obligatorios.<br>Accesos:<br><br>" .
@@ -44,37 +42,19 @@ class AgregaProveedor extends GenericCommand {
 			$this->addVar('detalle_html', $v);
 			$this->addVar('url', $v);
 
-			$usuarioPuedeAgregar = false;
+			// mantencion_base
+			$list_pmb = ProveedorMantencionBase::seekSpecial($db, 0);
 			
+			$this->addVar('list_pmb', $list_pmb);
+		
 		}
 		else {
 			// submit, agrega proveedor... grabamos cambios
 			
 			$exito = null;
 			
-			$usuarioPuedeAgregar = false;
-			
-			$ar_accesos = $fc->request->accesos;
-			
-			if (is_array($ar_accesos)) {
-				if (array_key_exists(1, $ar_accesos)) {
-					// solicitado acceso a agregar
-					
-					$usuarioPuedeAgregar = true;
-				}
-			}
-			
-			
 			try {
 			
-				$acceso_utilizar = Acceso::getByDescripcion($db, 'utilizar');
-				
-				$acceso_agregar = Acceso::getByDescripcion($db, 'agregar');
-				
-				if (!isset($acceso_agregar)) {
-					throw new Exception('Error al obtener acceso de agregar: registro no existe', null);
-				}
-				
 				$bInTransaction = false;
 				
 				$proveedor = new Proveedor();
@@ -83,11 +63,11 @@ class AgregaProveedor extends GenericCommand {
 				$proveedor->direccion = $fc->request->direccion;
 				$proveedor->correo = $fc->request->correo;
 				$proveedor->telefono = $fc->request->telefono;
-				$proveedor->latitud = $fc->request->latitud;
-				$proveedor->longitud = $fc->request->longitud;
-				$proveedor->valor_minimo = $fc->request->valor_minimo;
-				$proveedor->valor_maximo = $fc->request->valor_maximo;
-				$proveedor->detalle_html = $fc->request->detalle_html;
+				$proveedor->latitud = is_numeric($fc->request->latitud) ? $fc->request->latitud : null;
+				$proveedor->longitud = is_numeric($fc->request->longitud) ? $fc->request->longitud : null;
+				$proveedor->valor_minimo = is_numeric($fc->request->valor_minimo) ? $fc->request->valor_minimo : null;
+				$proveedor->valor_maximo = is_numeric($fc->request->valor_maximo) ? $fc->request->valor_maximo : null;
+				$proveedor->detalle_html = utf8_decode($fc->request->detalle_html);
 				$proveedor->url = $fc->request->url;
 				
 				$status_message = '';
@@ -104,14 +84,30 @@ class AgregaProveedor extends GenericCommand {
 					
 					$proveedor->insert($db);
 										
-					if ($usuarioPuedeAgregar) {
-						$proveedor->otorgaAcceso($db, 'agregar');
-					}
-
-					if ($usuarioPuedeUtilizar) {
-						$proveedor->otorgaAcceso($db, 'utilizar');
-					}
+					// mantenciones base soportadas por el proveedor
 					
+					$list_mb = MantencionBase::seek($db, '');
+					
+					$ar_mantenciones = $fc->request->mantenciones;
+					
+					foreach ($list_mb as $mb) {
+						if (array_key_exists($mb['id'], $ar_mantenciones)) {
+							/*
+					        $trace = debug_backtrace();
+					        trigger_error(
+					            "id {$mb['id']} nombre {$mb['nombre']}",
+					            E_USER_NOTICE);
+					        */
+							
+							$pmb = new ProveedorMantencionBase();
+							
+							$pmb->id_proveedor = $proveedor->id;
+							$pmb->id_mantencion_base = $mb['id'];
+							
+							$pmb->insert($db);
+						}
+					}
+										
 					// commit
 					if (!$db->TransactionEnd()) {
 						throw new Exception('Error al comitear transaccion: ' . $db->Error(), $db->ErrorNumber(), null);
@@ -141,11 +137,11 @@ class AgregaProveedor extends GenericCommand {
 			
 			$this->addVar("status_message", $status_message);
 
-			// para que el estado establecido pueda verse post submit
-			$this->addVar('usuarioPuedeAgregar', $usuarioPuedeAgregar);
-						
-			$this->addVar('usuarioPuedeUtilizar', $usuarioPuedeUtilizar);
+			// mantencion_base
+			$list_pmb = ProveedorMantencionBase::seekSpecial($db, $proveedor->id);
 			
+			$this->addVar('list_pmb', $list_pmb);
+						
 			// cargo en los textboxes los mismos valores pre submit
 			$fv=array();
 			
@@ -159,6 +155,7 @@ class AgregaProveedor extends GenericCommand {
 			$fv[7]="valor_maximo";
 			$fv[8]="detalle_html";
 			$fv[9]="url";
+			$fv[10]="mantenciones";
 			
 			$this->initFormVars($fv);
 		}

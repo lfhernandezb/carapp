@@ -4,126 +4,16 @@
 
 	$(document).ready(function() {
 		
-			$('.confirm_delete').click(function(e) {
-				var self = this;
-				
-				var id_usuario = $(this).attr('href');
-
-				e.preventDefault();
-				
-			    if($(this).next('div.question').length <= 0)  
-			        $(this).after('<div class="question">Est&aacute; seguro?<br> <span class="yes">S&iacute;</span><span class="cancel">Cancelar</span></div>');  
-				
-				$(this).next('.question').animate({opacity: 1}, 300);
-				
-				$('.yes').bind('click', function(){
-					var data;
-					var str;
-					
-			        $.ajax({
-			             async: false,
-			             url: "<{$receiver}>?do=Ajax&req=delUsuario&id_usuario=" + id_usuario,
-			             type: 'GET',
-			             dataType: 'json',
-			             error: function(xhr){
-		                 	if (xhr.status == 401) {
-		                 		// sesion expirada, redirijo a login
-		                 		window.location = "<{$receiver}>";
-		                 	}
-		                 	else {
-		                 		// error en ajax
-		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
-		                 	}
-			             },
-			             success: function(output_string){
-			             	//alert(output_string);
-			                 data = output_string;
-			             }
-			        });
-			
-			        if (data.respuesta == '1') {
-			        	$(self).parent().parent().hide();
-			        }
-				});
-		
-				$('.cancel').bind('click', function(){
-					$(this).parents('.question').fadeOut(300, function() {
-						$(this).remove();
-					});
-				});
-				
-			}); // end function
-
-			$('.confirm_reset').click(function(e) {
-				var self = this;
-				
-				var id_usuario = $(this).attr('href');
-
-				e.preventDefault();
-				
-			    if($(this).next('div.question').length <= 0)  
-			        $(this).after('<div class="question">Est&aacute; seguro?<br> <span class="yes">S&iacute;</span><span class="cancel">Cancelar</span></div>');  
-				
-				$(this).next('.question').animate({opacity: 1}, 300);
-				
-				$('.yes').bind('click', function(){
-					var data;
-					var str;
-					
-			        $.ajax({
-			             async: false,
-			             url: "<{$receiver}>?do=Ajax&req=resetPassword&id_usuario=" + id_usuario,
-			             type: 'GET',
-			             dataType: 'json',
-			             error: function(xhr){
-		                 	if (xhr.status == 401) {
-		                 		// sesion expirada, redirijo a login
-		                 		window.location = "<{$receiver}>";
-		                 	}
-		                 	else {
-		                 		// error en ajax
-		                	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
-		                 	}
-			             },
-			             success: function(output_string){
-			             	//alert(output_string);
-			                 data = output_string;
-			             }
-			        });
-			
-			        if (data.respuesta == '1') {
-			        	$(self).parent().parent().children()[4].textContent = "No";
-			        }
-
-			        $(this).parents('.question').fadeOut(300, function() {
-						$(this).remove();
-					});
-
-					//$(self).remove();
-				});
-		
-				$('.cancel').bind('click', function(){
-					$(this).parents('.question').fadeOut(300, function() {
-						$(this).remove();
-					});
-				});
-				
-			}); // end function
-			
-			// texto en USER HELP DESK
-			$('.sidebar_box p').html('<{$user_help_desk}>');
+		// texto en USER HELP DESK
+		$('.sidebar_box p').html('<{$user_help_desk}>');
 			
 	}); // end ready
 </script>
 	
-<script type="text/javascript" src="js/gestiona_usuarios.js"></script>
+<script type="text/javascript" src="js/ver_logs.js"></script>
 
 </head>
 <body>
-<!-- the dialog contents -->
-<div id="dialog" title="Detalle de Repuesto">
-	<div id="p1"></div>
-</div>
 
 <div id="main_container">
 
@@ -180,12 +70,8 @@
                 
                 <a class="menuitem" href="">User Reference</a>
                 -->
-                <a class="menuitem" href="<{$receiver}>?do=DisplayHome">Buscar Usuarios</a>
-				<!--
-				<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
-					<a class="menuitem" href="<{$receiver}>?do=AgregaUsuario">Agregar Usuario</a>
-				<{/if}>
-				-->
+                <!--a class="menuitem" href="<{$receiver}>?do=DisplayHome">Buscar Repuesto</a-->
+
 				<{if isset($search_keyword_usuario)}>
 					<form action="<{$receiver}>?do=GestionaUsuarios" method="post" id="buscar" name="form_search">
 						<input type="hidden" name="search" id="search" class="search_input" value="<{$search_keyword_usuario}>" />
@@ -207,7 +93,6 @@
 						</form>            
 					<{/if}>				
 				<{/if}>				
-                
             </div>
             
             <{include file="sidebar_box.html"}>
@@ -263,63 +148,56 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     
     <div class="right_content">            
         
-    <h2>Veh&iacute;culos</h2>
+    <h2>Logs</h2>
                     
-                    
+		<!-- the input fields that will hold the variables we will use -->  
+		<input type='hidden' id='current_page' />  
+		<input type='hidden' id='show_per_page' />  
+                   
 <table id="rounded-corner" summary="2007 Major IT Companies' Profit">
     <thead>
     	<tr>
-       		<th scope="col" class="rounded-company">Marca</th>
-<!-- 			<th scope="col" class="rounded">Usuario</th> -->
-            <th scope="col" class="rounded">Modelo</th>
-            <th scope="col" class="rounded">Patente</th>
-            <th scope="col" class="rounded">A&ntilde;o</th>
-            <th scope="col" class="rounded">Km</th>
-<!--            <th scope="col" class="rounded">Regi&oacute;n</th>-->
-<!--            <th scope="col" class="rounded">Ut</th>-->
-            <th scope="col" class="rounded-q4">Acciones</th>
+       		<th scope="col" class="rounded-company">Fecha/Hora</th>
+			<!--th scope="col" class="rounded">Usuario</th-->
+            <!--th scope="col" class="rounded">Longitud</th-->
+            <!--th scope="col" class="rounded">Data</th>
+            <th scope="col" class="rounded">Regi&oacute;n</th>
+            <th scope="col" class="rounded">Ut</th-->
+            <th scope="col" class="rounded-q4">Data</th>
         </tr>
     </thead>
     <tfoot>
     	<tr>
 	        <{if isset($exito)}>
 	           <{if $exito}>
-	        		<td colspan="5" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registro(s).</em></td>
+	        		<td colspan="2" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registro(s).</em></td>
 				<{/if}>
 			<{else}>
-				<td colspan="5" class="rounded-foot-left"><em>&nbsp;</em></td>
+				<td colspan="2" class="rounded-foot-left"><em>&nbsp;</em></td>
 			<{/if}>
         	<td class="rounded-foot-right">&nbsp;</td>
 
         </tr>
     </tfoot>
     <tbody>
-    	<{foreach from=$search_result item=vehiculo}>
+    	<{foreach from=$search_result item=log}>
 	    	<tr>
-	            <td><{$vehiculo.marca}></td>
-	            <td><{$vehiculo.modelo}></td>
-	            <td><{$vehiculo.patente}></td>
-	            <td><{$vehiculo.anio}></td>
-	            <td><{$vehiculo.km}></td>
-	            
-				<td>
-					<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
-						<{if ($usuario.nombre_usuario != 'admin')}>
-	
-							<!--a href="<{$receiver}>?do=EditaUsuario&id=<{$usuario.id}>"><img src="images/user_edit.png" alt="" title="Edita Usuario" border="0" /></a>
-	
-							<a href="<{$usuario.id}>" class="confirm_reset"><img src="images/reset_password.png" alt="" title="Restablece Contrase&ntilde;a" border="0" /></a>
-							
-							<a href="<{$usuario.id}>" class="confirm_delete"><img src="images/trash.png" alt="Elimina Usuario" title="Elimina Usuario" border="0" /></a-->
-	
-						<{/if}>
-					<{/if}>
-	            </td>
+	            <td><{$log.fecha_modificacion}></td>
+	            <td><{$log.data}></td>
 	        </tr>
         <{/foreach}>
     </tbody>
 </table>
 	
+	<{if isset($exito)}>
+        <{if $exito && $row_number > 0}>
+          	<!-- An empty div which will be populated using jQuery -->
+	        <div class="pagination">
+				<!--<span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a><a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>-->
+	        </div> 
+		<{/if}>
+	<{/if}>
+
 	<!-- movido a left_content
 	<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
 		<a href="<{$receiver}>?do=AgregaUsuario" class="bt_green"><span class="bt_green_lft"></span><strong>Agregar</strong><span class="bt_green_r"></span></a>

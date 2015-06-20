@@ -139,7 +139,7 @@ class Proveedor
 		$ret->_latitud = $p_ar[0]['latitud'];
 		$ret->_longitud = $p_ar[0]['longitud'];
 		$ret->_existen_valores = $p_ar[0]['existen_valores'];
-		$ret->_valor_minimo = $p_a_ar[0]['valor_minimo'];
+		$ret->_valor_minimo = $p_ar[0]['valor_minimo'];
 		$ret->_valor_maximo = $p_ar[0]['valor_maximo'];
 		$ret->_detalle_html = $p_ar[0]['detalle_html'];
 		$ret->_calificacion = $p_ar[0]['calificacion'];

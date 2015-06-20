@@ -2,6 +2,8 @@
 
 include_once('GenericCommand.php');
 include_once('../classes/Proveedor.php');
+include_once('../classes/ProveedorMantencionBase.php');
+include_once('../classes/MantencionBase.php');
 
 class EditaProveedor extends GenericCommand{
 	function execute(){
@@ -48,6 +50,11 @@ class EditaProveedor extends GenericCommand{
 			// recuerdo el id para grabar cambios en caso de utilizar repuesto
 			$this->addVar('id', $id, null);
 			
+			// mantencion_base
+			$list_pmb = ProveedorMantencionBase::seekSpecial($db, $id);
+			
+			$this->addVar('list_pmb', $list_pmb);
+			
 		}
 		else if (isset($fid)) {
 			// submit, actualiza proveedor... grabamos cambios
@@ -67,11 +74,11 @@ class EditaProveedor extends GenericCommand{
 				$proveedor->direccion = $fc->request->direccion;
 				$proveedor->correo = $fc->request->correo;
 				$proveedor->telefono = $fc->request->telefono;
-				$proveedor->latitud = $fc->request->latitud;
-				$proveedor->longitud = $fc->request->longitud;
-				$proveedor->valor_minimo = $fc->request->valor_minimo;
-				$proveedor->valor_maximo = $fc->request->valor_maximo;
-				$proveedor->detalle_html = $fc->request->detalle_html;
+				$proveedor->latitud = is_numeric($fc->request->latitud) ? $fc->request->latitud : null;
+				$proveedor->longitud = is_numeric($fc->request->longitud) ? $fc->request->longitud : null;
+				$proveedor->valor_minimo = is_numeric($fc->request->valor_minimo) ? $fc->request->valor_minimo : null;
+				$proveedor->valor_maximo = is_numeric($fc->request->valor_maximo) ? $fc->request->valor_maximo : null;
+				$proveedor->detalle_html = utf8_decode($fc->request->detalle_html);
 				$proveedor->url = $fc->request->url;
 				
 				$status_message = '';
@@ -87,6 +94,32 @@ class EditaProveedor extends GenericCommand{
 					$bInTransaction = true;
 					
 					$proveedor->update($db);
+					
+					// mantenciones base soportadas por el proveedor
+					
+					$list_mb = MantencionBase::seek($db, '');
+					
+					$ar_mantenciones = $fc->request->mantenciones;
+					
+					ProveedorMantencionBase::deleteByIdProveedor($db, $fid);
+					
+					foreach ($list_mb as $mb) {
+						if (array_key_exists($mb['id'], $ar_mantenciones)) {
+							/*
+					        $trace = debug_backtrace();
+					        trigger_error(
+					            "id {$mb['id']} nombre {$mb['nombre']}",
+					            E_USER_NOTICE);
+					        */
+							
+							$pmb = new ProveedorMantencionBase();
+							
+							$pmb->id_proveedor = $fid;
+							$pmb->id_mantencion_base = $mb['id'];
+							
+							$pmb->insert($db);
+						}
+					}
 															
 					// para que el estado establecido pueda verse post submit
 					// $this->addVar('usuarioPuedeAgregar', $usuarioPuedeAgregar);
@@ -117,10 +150,16 @@ class EditaProveedor extends GenericCommand{
 				
 				$status_message = 'Proveedor no pudo ser modificado. Raz&oacute;n: ' . $e->getMessage();
 			}
-				
+			
 			$this->addVar("exito", $exito);
 			
 			$this->addVar("status_message", $status_message);
+			
+			// mantencion_base
+			$list_pmb = ProveedorMantencionBase::seekSpecial($db, $fid);
+			
+			$this->addVar('list_pmb', $list_pmb);
+			
 			
 			// cargo en los textboxes los mismos valores pre submit
 			$fv=array();
@@ -135,6 +174,7 @@ class EditaProveedor extends GenericCommand{
 			$fv[7]="valor_maximo";
 			$fv[8]="detalle_html";
 			$fv[9]="url";
+			$fv[10]="mantenciones";
 						
 			$this->initFormVars($fv);
 		}

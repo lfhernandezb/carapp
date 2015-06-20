@@ -318,9 +318,18 @@ class Usuario
 		$str_sql =
 			"  SELECT id_usuario AS id, id_comuna, nombre, correo, fecha_nacimiento, hombre, telefono, fecha_vencimiento_licencia, 0+fecha_modificacion AS fecha_modificacion, 0+borrado AS borrado" .
 		 	"  FROM usuario u" .
-			"  WHERE (u.nombre LIKE '%$p_param%'" .
+		    "  WHERE";
+		
+		if (isset($p_param) && $p_param != '') {
+			$str_sql .=
+			"  (nombre LIKE '%$p_param%'" .
 			"  OR correo LIKE '%$p_param%')" .
-			"  AND u.borrado = b'0'";
+			"  AND";
+			
+		}
+		
+		$str_sql .=
+			"  u.borrado = b'0'";
 		
 		//echo '<br>' . $str_sql . '<br>';
 		

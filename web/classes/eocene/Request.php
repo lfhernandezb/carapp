@@ -61,8 +61,12 @@ class Request{
 	}
 	function _getProcessedString(&$value){
 		$value=trim($value);
-		$value=htmlspecialchars($value,ENT_QUOTES);
-		$value=stripcslashes($value);	
+		/*
+		 * 2015-06-17 LHB comportamiento no deseado
+		 * 
+		 * $value=htmlspecialchars($value,ENT_QUOTES);
+		 * $value=stripcslashes($value);
+		*/
 		return $value;
 	}
 }

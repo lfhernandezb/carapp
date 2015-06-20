@@ -47,6 +47,7 @@
 		<userid>car2</userid>
 		<password>car2</password>
 		<database>car2</database>
+		<charset>latin1</charset>
 	</dbInfo>
 	<!--****appSettings is an optional node. You can place any thing here 
                 and access it from $fc->appSettings

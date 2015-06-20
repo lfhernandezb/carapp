@@ -127,17 +127,17 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     
      
          <div class="form">
-         <form action="<{$receiver}>?do=EditaProveedor" method="post" class="niceform" id="edita_proveedor">
+         <form action="<{$receiver}>?do=EditaProveedor" method="post" class="niceform" id="edita_proveedor" accept-charset="iso-8859-1">
          		<input type="hidden" name="id" value="<{$id}>" />
          		
                 <fieldset>
                     <dl>
                         <dt><label for="nombre">Nombre:</label></dt>
-                        <dd><input type="text" name="nombre" id="nombre" size="75" value="<{$nombre}>" /></dd>
+                        <dd><input type="text" name="nombre" id="nombre" size="75" value="<{$nombre|htmlentities}>" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="direccion">Direcci&oacute;n:</label></dt>
-                        <dd><input type="text" name="direccion" id="direccion" size="75" value="<{$direccion}>" /></dd>
+                        <dd><input type="text" name="direccion" id="direccion" size="75" value="<{$direccion|htmlentities}>" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="correo">Correo:</label></dt>
@@ -165,15 +165,32 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
                     </dl>
                     <dl>
                         <dt><label for="detalle_html">Detalle HTML:</label></dt>
-                        <dd><input type="text" name="detalle_html" id="detalle_html" size="75" value="<{$detalle_html}>" /></dd>
+                        <dd><input type="text" name="detalle_html" id="detalle_html" size="75" value="<{$detalle_html|htmlentities}>" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="url">Sitio WEB:</label></dt>
                         <dd><input type="text" name="url" id="url" size="75" value="<{$url}>" /></dd>
                     </dl>
+                    
+                    <dl>
+                        <dt><label>Seleccione Mantenciones:</label></dt>
+                        <dd>
+							<{foreach from=$list_pmb item=pmb}>
+								<div>
+									<{if isset($pmb.id_proveedor)}>
+										<input type="checkbox" name="mantenciones[<{$pmb.id_mantencion_base}>]" id="utiliza_repuesto" value="" checked="checked" />
+									<{else}>
+										<input type="checkbox" name="mantenciones[<{$pmb.id_mantencion_base}>]" id="utiliza_repuesto" value="" />
+									<{/if}>
+									<label class="check_label"><{$pmb.nombre|htmlentities}></label>
+								</div>
+							<{/foreach}>
+                        </dd>
+                    </dl>
+                    
                     <dl class="submit">
                     	<input type="submit" name="submit" id="submit" value="Grabar" />
-                    </dl>
+                    </dl>                    
                     
                     <{if isset($exito)}>
                     	<{if $exito}>

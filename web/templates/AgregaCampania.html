@@ -32,11 +32,11 @@
             
         <div class="sidebarmenu">
                         
-            <a class="menuitem" href="<{$receiver}>?do=GestionaUsuarios">Buscar Usuario</a>
+            <!--a class="menuitem" href="<{$receiver}>?do=GestionaUsuarios">Buscar Usuario</a-->
             
-            <a class="menuitem" href="<{$receiver}>?do=GestionaVehiculos">Buscar Veh&iacute;culo</a>
+            <!--a class="menuitem" href="<{$receiver}>?do=GestionaVehiculos">Buscar Veh&iacute;culo</a-->
             
-            <a class="menuitem" href="<{$receiver}>?do=GestionaCampanias">Buscar Campa&ntilde;as</a>
+            <!--a class="menuitem" href="<{$receiver}>?do=GestionaCampanias">Buscar Campa&ntilde;as</a-->
 
 	        <form action="<{$receiver}>?do=GestionaCampanias" method="post" id="buscar" name="form_search">
 	            <input type="hidden" name="search_keyword_campania" id="search_keyword_campania" class="search_input" value="<{$search_keyword_campania}>" />
@@ -129,7 +129,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     
      
          <div class="form">
-         <form action="<{$receiver}>?do=AgregaCampania" method="post" class="niceform" id="agrega_campania">
+         <form action="<{$receiver}>?do=AgregaCampania" method="post" class="niceform" id="agrega_campania" accept-charset="iso-8859-1">
          		<input type="hidden" name="id" value="<{$id}>" />
          		
                 <fieldset>
@@ -159,16 +159,16 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
                         <dd><input type="text" name="fecha_inicio" id="fecha_inicio" size="75" value="<{$fecha_inicio}>" /></dd>
                     </dl>
                     <dl>
-                        <dt><label for="fecha_fin">Fecha Fin:</label></dt>
-                        <dd><input type="text" name="fecha_fin" id="fecha_fin" size="75" value="<{$fecha_fin}>" /></dd>
+                        <dt><label for="dias">D&iacute;as:</label></dt>
+                        <dd><input type="text" name="dias" id="dias" size="75" value="<{$dias}>" class="number_input" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="periodicidad">Periodicidad:</label></dt>
-                        <dd><input type="text" name="periodicidad" id="periodicidad" size="75" value="<{$periodicidad}>" /></dd>
+                        <dd><input type="text" name="periodicidad" id="periodicidad" size="75" value="<{$periodicidad}>" class="number_input" /></dd>
                     </dl>
                     <dl>
                         <dt><label for="numero_impresiones">Impresiones:</label></dt>
-                        <dd><input type="text" name="numero_impresiones" id="numero_impresiones" size="75" value="<{$numero_impresiones}>" /></dd>
+                        <dd><input type="text" name="numero_impresiones" id="numero_impresiones" size="75" value="<{$numero_impresiones}>" class="number_input" /></dd>
                     </dl>
                     <dl class="submit">
                     	<input type="submit" name="submit" id="submit" value="Grabar" />
@@ -183,25 +183,8 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 							<script type="text/javascript">
 								
 								$(document).ready(function() {
-									<{if $usuarioPuedeAgregar}>
-										$('#agrega_repuesto').attr('checked','checked');
-									<{else}>
-										$('#agrega_repuesto').removeAttr('checked');
-									<{/if}>
-
-									<{if $usuarioPuedeUtilizar}>
-										$('#utiliza_repuesto').attr('checked','checked');
-									<{else}>
-										$('#utiliza_repuesto').removeAttr('checked');
-									<{/if}>
-
-									<{if $reset_pwd}>
-										$('#reset_password').attr('checked','checked');
-									<{else}>
-										$('#reset_password').removeAttr('checked');
-									<{/if}>
-
-									//$('#submit').attr('disabled', true);
+									
+									$('#submit').attr('disabled', true);
 								}); // end ready
 							</script>
 		
@@ -213,9 +196,9 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 					<{/if}>
 					
                      
-                    <dl>
+                    <!--dl>
                     	<label for="message" class="error"><{$message}></label>
-                    </dl>
+                    </dl-->
                      
                     
                 	

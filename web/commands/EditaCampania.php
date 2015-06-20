@@ -2,6 +2,8 @@
 
 include_once('GenericCommand.php');
 include_once('../classes/Campania.php');
+include_once('../classes/Util.php');
+include_once('../classes/class.datetimecalc.php');
 
 class EditaCampania extends GenericCommand{
 	function execute(){
@@ -25,8 +27,8 @@ class EditaCampania extends GenericCommand{
 		$campania = null;
 		
 		$user_help_desk = 
-			"Edita los datos de una campa&ntilde;a.<br>Accesos:<br><br>" .
-			"Agrega campa&ntilde;a: Permite agregar campa&ntilde;as en forma manual o masiva";
+			"Edita los datos de una campa&ntilde;a.<br>"; //Accesos:<br><br>" .
+			//"Agrega campa&ntilde;a: Permite agregar campa&ntilde;as en forma manual o masiva";
 		
 		$this->addVar('user_help_desk', $user_help_desk);
 		
@@ -56,9 +58,24 @@ class EditaCampania extends GenericCommand{
 			$this->addVar('descripcion', $campania->descripcion);
 			$this->addVar('activa', $campania->activa);
 			$this->addVar('condicion', $campania->condicion);
-			$this->addVar('detalle', $campania->detalle);
+			// para correcto despliegue, htmlenties
+			$this->addVar('detalle', htmlentities($campania->detalle, ENT_QUOTES));
 			$this->addVar('fecha_inicio', $campania->fecha_inicio);
-			$this->addVar('fecha_fin', $campania->fecha_fin);
+			
+			// debo calcular la diferencia en dias entre fecha_final y fecha_inicial
+			$dtc_i = new Date_Time_Calc($campania->fecha_inicio, 'Y-m-d');
+			
+			Util::write_to_log("timestamp inicial " . $dtc_i->date_time_stamp);
+			
+			$dtc_f = new Date_Time_Calc($campania->fecha_fin, 'Y-m-d');
+			
+			$dias = intval(($dtc_f->date_time_stamp - $dtc_i->date_time_stamp) / ( 60 * 60 * 24 ));
+			
+			Util::write_to_log("dias " . $dias);
+			
+			//$this->addVar('fecha_fin', $campania->fecha_fin);
+			
+			$this->addVar('dias', $dias);
 			$this->addVar('periodicidad', $campania->periodicidad);
 			$this->addVar('numero_impresiones', $campania->numero_impresiones);
 			
@@ -70,6 +87,9 @@ class EditaCampania extends GenericCommand{
 		}
 		else if (isset($fid)) {
 			// submit, actualiza campania... grabamos cambios
+			
+			Util::write_to_log($fc->request->condicion);
+			Util::write_to_log($fc->request->detalle);
 			
 			$exito = null;
 			
@@ -114,10 +134,17 @@ class EditaCampania extends GenericCommand{
 				echo $fc->request->detalle . '<br>';
 				echo mysql_real_escape_string($fc->request->detalle) . '<br>';
 				*/
-				$campania->condicion = $fc->request->condicion;
-				$campania->detalle = mysql_real_escape_string(html_entity_decode($fc->request->detalle));
+				$campania->condicion = mysql_real_escape_string($fc->request->condicion);
+				$campania->detalle = $fc->request->detalle;
 				$campania->fecha_inicio = $fc->request->fecha_inicio;
-				$campania->fecha_fin = $fc->request->fecha_fin;
+				
+				// 2015-06-18 calculamos la fecha final en base a la fecha inicial y los dias ingresados
+				$dtc = new Date_Time_Calc($campania->fecha_inicio, 'Y-m-d');
+				$dtc->add("d", $fc->request->dias);
+				
+				Util::write_to_log("fecha_final " . $dtc->date_time);
+				
+				$campania->fecha_fin = $dtc->date_time;
 				$campania->periodicidad = $fc->request->periodicidad;
 				$campania->numero_impresiones = $fc->request->numero_impresiones;
 				
@@ -126,7 +153,7 @@ class EditaCampania extends GenericCommand{
 				try {
 					
 					// valido el JSON de detalle
-					$json_detalle = json_decode(html_entity_decode($fc->request->detalle), true);
+					$json_detalle = json_decode($fc->request->detalle);
 					
 					if ($json_detalle == null) {
 						throw new Exception('Error, el JSON no es v&aacute;lido');
@@ -156,7 +183,7 @@ class EditaCampania extends GenericCommand{
 					// estatus exito
 					$exito = true;
 					
-					$status_message = 'Campa&ntilde;a modificado exitosamente';
+					$status_message = 'Campa&ntilde;a modificada exitosamente';
 					
 				} catch (Exception $e) {
 					// rollback
@@ -170,7 +197,7 @@ class EditaCampania extends GenericCommand{
 				// estatus fracaso
 				$exito = false;
 				
-				$status_message = 'Campa&ntilde;a no pudo ser modificado. Raz&oacute;n: ' . $e->getMessage();
+				$status_message = 'Campa&ntilde;a no pudo ser modificada. Raz&oacute;n: ' . $e->getMessage();
 			}
 				
 			$this->addVar("exito", $exito);
@@ -180,12 +207,17 @@ class EditaCampania extends GenericCommand{
 			// cargo en los textboxes los mismos valores pre submit
 			$fv=array();
 			
+			// para el correcto despliegue
+			$fc->request->detalle = htmlentities($fc->request->detalle, ENT_QUOTES);
+			
+			Util::write_to_log("fc->request->detalle post save " . $fc->request->detalle);
+			
 			$fv[0]="descripcion";
 			$fv[1]="activa";
 			$fv[2]="condicion";
 			$fv[3]="detalle";
 			$fv[4]="fecha_inicio";
-			$fv[5]="fecha_fin";
+			$fv[5]="dias";
 			$fv[6]="periodicidad";
 			$fv[7]="numero_impresiones";
 						

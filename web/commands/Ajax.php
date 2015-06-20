@@ -81,6 +81,23 @@ class Ajax extends GenericCommand {
 				
 				echo $data;
 			}
+			else if ($req == 'deleteProveedor') {
+				// se solicita el eliminar un proveedor
+				$id_proveedor = $fc->request->id_proveedor;
+				
+				$proveedor = Proveedor::getById($db, $id_proveedor);
+				
+				$resp = '0';
+				
+				if (!empty($proveedor)) {
+					
+					$proveedor->delete($db);
+					
+					$resp = '1';					
+				}
+				
+				echo "{\"respuesta\": \"$resp\"}";
+			}
 			else if ($req == 'getParametro') {
 				// se solicita el detalle de un proveedor
 				$id_parametro = $fc->request->id_parametro;
