@@ -1,7 +1,6 @@
 <?php
 
 include_once('mysql.class.php');
-include_once('Acceso.php');
 
 class Usuario
 {
@@ -16,6 +15,12 @@ class Usuario
 	private $_fecha_modificacion;
 	private $_borrado;
 	
+	private static $_str_sql = "
+  SELECT u.id_usuario AS id, u.id_comuna, u.nombre, u.correo, DATE_FORMAT(u.fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento,
+  0+u.hombre AS hombre, u.telefono, DATE_FORMAT(u.fecha_vencimiento_licencia, '%Y-%m-%d') AS fecha_vencimiento_licencia,
+  DATE_FORMAT(u.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion, 0+u.borrado AS borrado
+  FROM usuario u";
+		
 	public function __construct() {
 		
 	}
@@ -144,9 +149,7 @@ class Usuario
 	public static function getByUsername($p_db, $p_username) {
 		$ret = null;
 		
-		$str_sql =
-			"  SELECT id_usuario, id_comuna, nombre, correo, fecha_nacimiento, hombre, telefono, fecha_vencimiento_licencia, 0+fecha_modificacion AS fecha_modificacion, 0+borrado AS borrado" .
-		 	"  FROM usuario u" .
+		$str_sql = self::$_str_sql .
 			"  WHERE u.nombre_usuario = '$p_username'";
 		
 		//echo '<br>' . $str_sql . '<br>';
@@ -167,9 +170,7 @@ class Usuario
 	public static function getByhombre($p_db, $p_hombre) {
 		$ret = null;
 		
-		$str_sql =
-			"  SELECT id_usuario, id_comuna, nombre, correo, fecha_nacimiento, hombre, telefono, fecha_vencimiento_licencia, 0+fecha_modificacion AS fecha_modificacion, 0+borrado AS borrado" .
-		 	"  FROM usuario u" .
+		$str_sql = self::$_str_sql .
 			"  WHERE u.hombre = '$p_hombre'";
 		
 		//echo '<br>' . $str_sql . '<br>';
@@ -190,9 +191,7 @@ class Usuario
 	public static function getByID($p_db, $p_id) {
 		$ret = null;
 		
-		$str_sql =
-			"  SELECT id_usuario, id_comuna, nombre, correo, fecha_nacimiento, hombre, telefono, fecha_vencimiento_licencia, 0+fecha_modificacion AS fecha_modificacion, 0+borrado AS borrado" .
-		 	"  FROM usuario u" .
+		$str_sql = self::$_str_sql .
 			"  WHERE u.id_usuario = '$p_id'";
 		
 		//echo '<br>' . $str_sql . '<br>';
@@ -209,7 +208,7 @@ class Usuario
 		return $ret;
 		
 	}
-	
+	/*
 	public function tieneAcceso($p_db, $p_acceso) {
 		$ret = false;
 		
@@ -312,12 +311,12 @@ class Usuario
 		
 		return $ret;
 	}
-	
-	public static function seekSpecial($p_db, $p_param) {
+	*/
+	public static function seekSpecial($p_db, $p_param, $p_order = null, $p_direction = null, $p_offset = null, $p_limit = null, $p_get_total = false) {
 		
-		$str_sql =
-			"  SELECT id_usuario AS id, id_comuna, nombre, correo, fecha_nacimiento, hombre, telefono, fecha_vencimiento_licencia, 0+fecha_modificacion AS fecha_modificacion, 0+borrado AS borrado" .
-		 	"  FROM usuario u" .
+		$result         = new stdClass();
+		
+		$str_sql = self::$_str_sql .
 		    "  WHERE";
 		
 		if (isset($p_param) && $p_param != '') {
@@ -331,94 +330,119 @@ class Usuario
 		$str_sql .=
 			"  u.borrado = b'0'";
 		
-		//echo '<br>' . $str_sql . '<br>';
+		if ($p_get_total) {
 		
-		$ret = $p_db->QueryArray($str_sql, MYSQL_ASSOC);
+			$rs = $p_db->Query($str_sql);
+			
+			$num_rows = mysql_num_rows($rs);
+			
+	    	$result->total  = $num_rows;
+		}
+				
+        if (isset($p_order) && isset($p_direction)) {
+        	$str_sql .= " ORDER BY $p_order $p_direction";
+        }
+        
+        if (isset($p_offset) && isset($p_limit)) {
+        	$str_sql .= "  LIMIT $p_offset, $p_limit";
+        }
 		
-		if (!is_array($ret)) {
-			$ret = null;
+        //echo '<br>' . $str_sql . '<br>';
+	
+		$data = $p_db->QueryArray($str_sql, MYSQL_ASSOC);
+		
+		if (!is_array($data)) {
+			$data = null;
+
+			if ($p_db->RowCount() != 0) {
+				throw new Exception('Error al obtener registro: ' . $p_db->Error(), $p_db->ErrorNumber(), null);
+			}
+		}
+				
+	    $result->data   = $data;
+	 
+	    return $result;
+		
+	}
+	
+    public static function seek($p_db, $p_parameters, $p_order, $p_direction, $p_offset, $p_limit, $p_get_total = false) {
+		
+		$result         = new stdClass();
+    	$array_clauses  = array();
+		
+		$str_sql = self::$_str_sql;
+							
+        foreach($p_parameters as $key => $value) {
+    		if ($key == 'id') {
+                $array_clauses[] = "u.id_usuario = $value";
+            }
+            else if ($key == 'activo') {
+                $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
+            }
+            else if ($key == 'auto') {
+                $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo)";
+            }
+            else if ($key == 'km') {
+            	$array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo WHERE km > 0)";
+            }
+            else if ($key == 'identificado') {
+                $array_clauses[] = "u.nombre IS NOT NULL AND u.correo IS NOT NULL";
+            }
+            else if ($key == 'borrado') {
+                $array_clauses[] = "u.borrado = b'1'";
+            }
+            else if ($key == 'no borrado') {
+                $array_clauses[] = "u.borrado = b'0'";
+            }
+            else {
+            	throw new Exception('Parametro no soportado: ' . $key, null, null);
+            }
+        }
+        
+        $bFirstTime = false;
+        foreach($array_clauses as $clause) {
+            if (!$bFirstTime) {
+                 $bFirstTime = true;
+                 $str_sql .= ' WHERE ';
+            }
+            else {
+                 $str_sql .= ' AND ';
+            }
+            $str_sql .= $clause;
+        }
+		
+		if ($p_get_total) {
+		
+			$rs = $p_db->Query($str_sql);
+			
+			$num_rows = mysql_num_rows($rs);
+			
+	    	$result->total  = $num_rows;
+		}
+                
+		if (isset($p_order) && isset($p_direction)) {
+        	$str_sql .= " ORDER BY $p_order $p_direction";
+        }
+        
+        if (isset($p_offset) && isset($p_limit)) {
+        	$str_sql .= "  LIMIT $p_offset, $p_limit";
+        }
+		
+        //echo '<br>' . $str_sql . '<br>';
+	
+		$data = $p_db->QueryArray($str_sql, MYSQL_ASSOC);
+		
+		if (!is_array($data)) {
+			$data = null;
 
 			if ($p_db->RowCount() != 0) {
 				throw new Exception('Error al obtener registro: ' . $p_db->Error(), $p_db->ErrorNumber(), null);
 			}
 		}
 		
-		return $ret;
-		
-	}
-	
-    public static function seek($db, $parameters, $order, $direction, $offset, $limit) {
-		
-		try {
-			$array_clauses = array();
-			
-			$str_sql =
-			"  SELECT u.id_usuario AS id, u.id_comuna, u.nombre, u.correo, u.fecha_nacimiento, u.fecha_vencimiento_licencia, u.hombre, u.telefono, 0+u.fecha_modificacion AS fecha_modificacion, 0+u.borrado AS borrado" .
-		 	"  FROM usuario u";
-								
-	        foreach($parameters as $key => $value) {
-	    		if ($key == 'id') {
-	                $array_clauses[] = "u.id_usuario = $value";
-	            }
-	            else if ($key == 'activo') {
-	                $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
-	            }
-	            else if ($key == 'auto') {
-	                $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo)";
-	            }
-	            else if ($key == 'km') {
-	            	$array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo WHERE km > 0)";
-	            }
-	            else if ($key == 'identificado') {
-	                $array_clauses[] = "u.nombre IS NOT NULL AND u.correo IS NOT NULL";
-	            }
-	            else if ($key == 'borrado') {
-	                $array_clauses[] = "u.borrado = b'1'";
-	            }
-	            else if ($key == 'no borrado') {
-	                $array_clauses[] = "u.borrado = b'0'";
-	            }
-	            else {
-	            	throw new Exception('Parametro no soportado: ' . $key, null, null);
-	            }
-	        }
-	        
-	        $bFirstTime = false;
-	        foreach($array_clauses as $clause) {
-	            if (!$bFirstTime) {
-	                 $bFirstTime = true;
-	                 $str_sql .= ' WHERE ';
-	            }
-	            else {
-	                 $str_sql .= ' AND ';
-	            }
-	            $str_sql .= $clause;
-	        }
-			
-	        if (isset($order) && isset($direction)) {
-	        	$str_sql .= " ORDER BY $order $direction";
-	        }
-	        
-	        if (isset($offset) && isset($limit)) {
-	        	$str_sql .= "  LIMIT $offset, $limit";
-	        }
-			
-	        //echo '<br>' . $str_sql . '<br>';
-		
-			$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
-			
-			if (!is_array($ret)) {
-				$ret = null;
-
-				if ($db->RowCount() != 0) {
-					throw new Exception('Error al obtener registro: ' . $db->Error(), $db->ErrorNumber(), null);
-				}
-			}
-			
-			return $ret;
-		} catch (Exception $e) {
-			throw new Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
-		}
+	    $result->data   = $data;
+	 
+	    return $result;
 	}
 	
 	public function update($p_db) {

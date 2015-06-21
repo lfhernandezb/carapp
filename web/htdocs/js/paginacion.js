@@ -2,21 +2,21 @@ function paginacion() {
 	
 	// paginacion
 	
-	// se desean a lo mas 10 paginas
-	var desired_pages = 10;
-	
     //getting the amount of elements inside content div  
-    var number_of_items = $('tbody').children().size();  
+    var number_of_items = $('#record-number').val(); //$('tbody').children().size();  
 
     //how much items per page to show  
-    var show_per_page = Math.max(Math.ceil(number_of_items/desired_pages), 10);  
+    var show_per_page = $('#show_per_page').val(); //Math.max(Math.ceil(number_of_items/desired_pages), 10);  
     
     //calculate the number of pages we are going to have  
-    var number_of_pages = Math.ceil(number_of_items/show_per_page);  
+    var number_of_pages = $('#page_number').val();  //Math.ceil(number_of_items/show_per_page);
+    
+    //current page
+    var page_num = $('#current_page').val();
   
     //set the value of our hidden input fields  
-    $('#current_page').val(0);  
-    $('#show_per_page').val(show_per_page);  
+    //$('#current_page').val(0);  
+    //$('#show_per_page').val(show_per_page);  
   
     //now when we got all we need for the navigation let's make it '  
   
@@ -56,13 +56,16 @@ function paginacion() {
     $('.pagination').html(navigation_html);  
   
     //add active_page class to the first page link  
-    $('.pagination .page_link:first').addClass('current');  
+    //$('.pagination .page_link:first').addClass('current');  
+    
+    // update current page
+    $('.page_link[longdesc=' + page_num +']').addClass('current').siblings('.current').removeClass('current');
   
     //hide all the elements inside content div  
-    $('tbody').children().hide(); //css('display', 'none');  
+    //$('tbody').children().hide(); //css('display', 'none');  
   
     //and show the first n (show_per_page) elements  
-    $('tbody').children().slice(0, show_per_page).show(); //css('display', 'block');
+    //$('tbody').children().slice(0, show_per_page).show(); //css('display', 'block');
     
     // fin paginacion
 
@@ -87,27 +90,6 @@ function next(){
         go_to_page(new_page);  
     }  
   
-}  
-function go_to_page(page_num){  
-    //get the number of items shown per page  
-    var show_per_page = parseInt($('#show_per_page').val());  
-  
-    //get the element number where to start the slice from  
-    start_from = page_num * show_per_page;  
-  
-    //get the element number where to end the slice  
-    end_on = start_from + show_per_page;  
-  
-    //hide all children elements of content div, get specific items and show them  
-    //$('tbody').children().css('display', 'none').slice(start_from, end_on).css('display', 'block');  
-    $('tbody').children().hide().slice(start_from, end_on).show(); //css('display', 'block');
-  
-    /*get the page link that has longdesc attribute of the current page and add active_page class to it 
-    and remove that class from previously active page link*/  
-    $('.page_link[longdesc=' + page_num +']').addClass('current').siblings('.current').removeClass('current');  
-  
-    //update the current page input field  
-    $('#current_page').val(page_num);  
 }  
 
 // fin paginacion	

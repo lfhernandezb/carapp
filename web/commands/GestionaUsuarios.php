@@ -24,6 +24,11 @@ class GestionaUsuarios extends GenericCommand{
 		
 		$fv=array();
 		
+		$registros_por_pagina = 10;
+		$pagina = 0;
+		$total_registros = 0;
+		$paginas_totales = 0;
+		
 		if (empty($_POST)) {
 			// limpio variables
 			HTTP_session::set('search_keyword_usuario', null);
@@ -45,15 +50,27 @@ class GestionaUsuarios extends GenericCommand{
 			
 			$search_keyword = $fc->request->search_keyword_usuario;
 			
-			$search_result = Usuario::seekSpecial($db, $search_keyword);
+			$search_result = Usuario::seekSpecial($db, $search_keyword, 'u.id_usuario', 'ASC', $pagina * $registros_por_pagina, $registros_por_pagina, true);
 			
+			if (is_array($search_result->data)) {
+				// variables de paginacion
+				$total_registros = $search_result->total;
+				$paginas_totales = ceil($total_registros / $registros_por_pagina);
+			}
+									
 			// var_dump($search_result);
 			
-			$this->addVar('search_result', $search_result);
+			$this->addVar('search_result', $search_result->data);
 			
-			$row_number = $db->RowCount() === false ? 0 : $db->RowCount();
+			$this->addVar('pagina', $pagina);
+			$this->addVar('registros_por_pagina', $registros_por_pagina);
+			$this->addVar('paginas_totales', $paginas_totales);
+			$this->addVar('total_registros', $total_registros);
 			
-			$this->addVar('row_number', $row_number);
+			HTTP_session::set('pagina_usuario', $pagina);
+			HTTP_session::set('registros_por_pagina_usuario', $registros_por_pagina);
+			HTTP_session::set('paginas_totales_usuario', $paginas_totales);
+			HTTP_session::set('total_registros_usuario', $total_registros);
 			
 			$exito = true;
 			
@@ -111,15 +128,29 @@ class GestionaUsuarios extends GenericCommand{
 			
 			//$parameters['identificado'] = null;
 			
-			$search_result = Usuario::seek($db, $parameters, 'u.fecha_modificacion', 'ASC', 0, 10000);
+			$search_result = Usuario::seek($db, $parameters, 'u.id_usuario', 'ASC', $pagina * $registros_por_pagina, $registros_por_pagina, true);
+			
+			if (is_array($search_result->data)) {
+				// variables de paginacion
+				$total_registros = $search_result->total;
+				$paginas_totales = ceil($total_registros / $registros_por_pagina);
+			}
+			
+			HTTP_session::set('pagina_usuario', $pagina);
 			
 			// var_dump($search_result);
 			
-			$this->addVar('search_result', $search_result);
+			$this->addVar('search_result', $search_result->data);
 			
-			$row_number = $db->RowCount() === false ? 0 : $db->RowCount();
-			
-			$this->addVar('row_number', $row_number);
+			$this->addVar('pagina', $pagina);
+			$this->addVar('registros_por_pagina', $registros_por_pagina);
+			$this->addVar('paginas_totales', $paginas_totales);
+			$this->addVar('total_registros', $total_registros);
+						
+			HTTP_session::set('pagina_usuario', $pagina);
+			HTTP_session::set('registros_por_pagina_usuario', $registros_por_pagina);
+			HTTP_session::set('paginas_totales_usuario', $paginas_totales);
+			HTTP_session::set('total_registros_usuario', $total_registros);
 			
 			$exito = true;
 			
@@ -142,7 +173,7 @@ class GestionaUsuarios extends GenericCommand{
 			
 		}
 		else if (isset($fc->request->search)) {
-			// submit desde VerVehiculos
+			// submit desde VerVehiculos o VerLogs
 			
 			$exito = null;
 			
@@ -150,20 +181,26 @@ class GestionaUsuarios extends GenericCommand{
 			
 			$search_keyword = HTTP_session::get('search_keyword_usuario');
 			
+			$pagina = HTTP_session::get('pagina_usuario');
+			$registros_por_pagina = HTTP_session::get('registros_por_pagina_usuario');
+			$paginas_totales = HTTP_session::get('paginas_totales_usuario');
+			$total_registros = HTTP_session::get('total_registros_usuario');
+			
 			// elimino el valor del form alternativo, para saber como se hizo la busqueda al volver a esta pantalla
 			
-			HTTP_session::set('search_keyword_usuario_alt', null);
+			//HTTP_session::set('search_keyword_usuario_alt', null);
 			
-			$search_result = Usuario::seekSpecial($db, $search_keyword);
+			$search_result = Usuario::seekSpecial($db, $search_keyword, 'u.id_usuario', 'ASC', $pagina * $registros_por_pagina, $registros_por_pagina, false);
 			
 			// var_dump($search_result);
 			
-			$this->addVar('search_result', $search_result);
+			$this->addVar('search_result', $search_result->data);
 			
-			$row_number = $db->RowCount() === false ? 0 : $db->RowCount();
-			
-			$this->addVar('row_number', $row_number);
-			
+			$this->addVar('pagina', $pagina);
+			$this->addVar('registros_por_pagina', $registros_por_pagina);
+			$this->addVar('paginas_totales', $paginas_totales);
+			$this->addVar('total_registros', $total_registros);
+						
 			$exito = true;
 			
 			$this->addVar('exito', $exito);
@@ -174,15 +211,13 @@ class GestionaUsuarios extends GenericCommand{
 								
 		}
 		else if (isset($fc->request->search_alt)) {
-			// submit desde VerVehiculos
-			$this->addVar('dias', $dias);
+			// submit desde VerVehiculos o VerLogs
+			
 			$exito = null;
 			$activo = null;
 			$dias = null;
 			$auto = null;
 			$km = null;
-			
-			$dias = $fc->request->dias;
 			
 			$parameters = array();
 			
@@ -198,7 +233,7 @@ class GestionaUsuarios extends GenericCommand{
 			
 			// elimino el valor del form alternativo, para saber como se hizo la busqueda al volver a esta pantalla
 			
-			HTTP_session::set('search_keyword_usuario', null);
+			//HTTP_session::set('search_keyword_usuario', null);
 			
 			if (isset($search_keyword['activo']) && isset($search_keyword['dias'])) {
 				$activo = $search_keyword['activo'];
@@ -228,16 +263,22 @@ class GestionaUsuarios extends GenericCommand{
 			
 			//$parameters['identificado'] = null;
 			
-			$search_result = Usuario::seek($db, $parameters, 'u.fecha_modificacion', 'ASC', 0, 10000);
+			$pagina = HTTP_session::get('pagina_usuario');
+			$registros_por_pagina = HTTP_session::get('registros_por_pagina_usuario');
+			$paginas_totales = HTTP_session::get('paginas_totales_usuario');
+			$total_registros = HTTP_session::get('total_registros_usuario');
+			
+			$search_result = Usuario::seek($db, $parameters, 'u.id_usuario', 'ASC', $pagina * $registros_por_pagina, $registros_por_pagina, false);
 			
 			// var_dump($search_result);
 			
-			$this->addVar('search_result', $search_result);
+			$this->addVar('search_result', $search_result->data);
 			
-			$row_number = $db->RowCount() === false ? 0 : $db->RowCount();
-			
-			$this->addVar('row_number', $row_number);
-			
+			$this->addVar('pagina', $pagina);
+			$this->addVar('registros_por_pagina', $registros_por_pagina);
+			$this->addVar('paginas_totales', $paginas_totales);
+			$this->addVar('total_registros', $total_registros);
+						
 			$exito = true;
 			
 			$this->addVar('exito', $exito);

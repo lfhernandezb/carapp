@@ -121,6 +121,8 @@
 			// texto en USER HELP DESK
 			$('.sidebar_box p').html('<{$user_help_desk}>');
 			
+			paginacion();
+			
 	}); // end ready
 	
 	function detalleUsuario(id_usuario) {
@@ -181,6 +183,57 @@
 		
 		$('#dialog').dialog('open');
 	}	
+	
+function go_to_page(page_num){
+	/*
+    //get the number of items shown per page  
+    var show_per_page = parseInt($('#show_per_page').val());  
+  
+    //get the element number where to start the slice from  
+    start_from = page_num * show_per_page;  
+  
+    //get the element number where to end the slice  
+    end_on = start_from + show_per_page;  
+  
+    //hide all children elements of content div, get specific items and show them  
+    //$('tbody').children().css('display', 'none').slice(start_from, end_on).css('display', 'block');  
+    $('tbody').children().hide().slice(start_from, end_on).show(); //css('display', 'block');
+    */
+    //get the page link that has longdesc attribute of the current page and add active_page class to it 
+    //and remove that class from previously active page link
+    $('.page_link[longdesc=' + page_num +']').addClass('current').siblings('.current').removeClass('current');  
+	
+    //update the current page input field  
+    $('#current_page').val(page_num);
+    
+	$.ajax({
+		 async: false,
+		 url: "<{$receiver}>?do=Ajax&req=getUsuarioPagina&page_num=" + page_num,
+		 type: 'GET',
+		 dataType: 'json',
+		 error: function(xhr){
+			if (xhr.status == 401) {
+				// sesion expirada, redirijo a login
+				window.location = "<{$receiver}>";
+			}
+			else {
+				// error en ajax
+				if (xhr.status == 200) {
+					//$('tbody').children().remove();
+					$('tbody').html(xhr.responseText);
+				}
+				else {
+					alert("An error occured: " + xhr.status + " " + xhr.statusText);
+				}
+			}
+		 },
+		 success: function(output_string){
+		 	//alert(output_string);
+			$('tbody').html(output_string);
+		 }
+	});
+
+}  
 	
 </script>
 	
@@ -335,9 +388,11 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     		</form>
          </div>           
                     
-		<!-- the input fields that will hold the variables we will use -->  
-		<input type='hidden' id='current_page' />  
-		<input type='hidden' id='show_per_page' />  
+		<!-- variables de paginacion -->  
+		<input type='hidden' id='current_page' value="<{$pagina}>" />  
+		<input type='hidden' id='show_per_page' value="<{$registros_por_pagina}>" />  
+		<input type='hidden' id='page_number' value="<{$paginas_totales}>" />  
+		<input type='hidden' id='record_number' value="<{$total_registros}>" />  
                     
 <table id="rounded-corner" summary="2007 Major IT Companies' Profit">
     <thead>
@@ -357,7 +412,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     	<tr>
 	        <{if isset($exito)}>
 	           <{if $exito}>
-	        		<td colspan="5" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registro(s).</em></td>
+	        		<td colspan="5" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$total_registros}> registro(s).</em></td>
 				<{/if}>
 			<{else}>
 				<td colspan="5" class="rounded-foot-left"><em>&nbsp;</em></td>
@@ -399,7 +454,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 </table>
 
     <{if isset($exito)}>
-        <{if $exito && $row_number > 0}>
+        <{if $exito && $total_registros > 0}>
           	<!-- An empty div which will be populated using jQuery -->
 	        <div class="pagination">
 				<!--<span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a><a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>-->
@@ -407,113 +462,6 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 		<{/if}>
 	<{/if}>
 
-	
-	<!-- movido a left_content
-	<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
-		<a href="<{$receiver}>?do=AgregaUsuario" class="bt_green"><span class="bt_green_lft"></span><strong>Agregar</strong><span class="bt_green_r"></span></a>
-	<{/if}>
-	-->
-	
-    <!--
-     <a href="#" class="bt_blue"><span class="bt_blue_lft"></span><strong>View all items from category</strong><span class="bt_blue_r"></span></a>
-     <a href="#" class="bt_red"><span class="bt_red_lft"></span><strong>Delete items</strong><span class="bt_red_r"></span></a> 
-     
-     
-        <div class="pagination">
-        <span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a>�<a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>
-        </div> 
-     -->
-     <!--
-     <h2>Warning Box examples</h2>
-      
-     <div class="warning_box">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
-     </div>
-     <div class="valid_box">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
-     </div>
-     <div class="error_box">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
-     </div>  
-    -->
-    <!--  
-     <h2>Nice Form example</h2>
-     
-         <div class="form">
-         <form action="" method="post" class="niceform">
-         
-                <fieldset>
-                    <dl>
-                        <dt><label for="email">Email Address:</label></dt>
-                        <dd><input type="text" name="" id="" size="88.8" /></dd>
-                    </dl>
-                    <dl>
-                        <dt><label for="password">Password:</label></dt>
-                        <dd><input type="text" name="" id="" size="88.8" /></dd>
-                    </dl>
-                    
-                    
-                    <dl>
-                        <dt><label for="gender">Select categories:</label></dt>
-                        <dd>
-                            <select size="1" name="gender" id="">
-                                <option value="">Select option 1</option>
-                                <option value="">Select option 2</option>
-                                <option value="">Select option 3</option>
-                                <option value="">Select option 4</option>
-                                <option value="">Select option 5</option>
-                            </select>
-                        </dd>
-                    </dl>
-                    <dl>
-                        <dt><label for="interests">Select tags:</label></dt>
-                        <dd>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Web design</label>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Business</label>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Simple</label>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Clean</label>
-                        </dd>
-                    </dl>
-                    
-                    <dl>
-                        <dt><label for="color">Select type</label></dt>
-                        <dd>
-                            <input type="radio" name="type" id="" value="" /><label class="check_label">Basic</label>
-                            <input type="radio" name="type" id="" value="" /><label class="check_label">Medium</label>
-                            <input type="radio" name="type" id="" value="" /><label class="check_label">Premium</label>
-                        </dd>
-                    </dl>
-                    
-                    
-                    
-                    <dl>
-                        <dt><label for="upload">Upload a File:</label></dt>
-                        <dd><input type="file" name="upload" id="upload" /></dd>
-                    </dl>
-                    
-                    <dl>
-                        <dt><label for="comments">Message:</label></dt>
-                        <dd><textarea name="comments" id="comments" rows="5" cols="36"></textarea></dd>
-                    </dl>
-                    
-                    <dl>
-                        <dt><label></label></dt>
-                        <dd>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">I agree to the <a href="#">terms &amp; conditions</a></label>
-                        </dd>
-                    </dl>
-                    
-                     <dl class="submit">
-                    <input type="submit" name="submit" id="submit" value="Submit" />
-                     </dl>
-                     
-                     
-                    
-                </fieldset>
-                
-         </form>
-         </div>  
-      -->
      
      </div><!-- end of right content-->
             

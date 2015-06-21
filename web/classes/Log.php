@@ -16,7 +16,8 @@ class Log
 	private $_fecha_modificacion;
 	private $_borrado;
 	
-	private static $_str_sql = "  SELECT id_log AS id, id_usuario, latitud, longitud, data, DATE_FORMAT(fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion, 0+borrado AS borrado
+	private static $_str_sql = "
+	SELECT id_log AS id, id_usuario, latitud, longitud, data, DATE_FORMAT(fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion, 0+borrado AS borrado
 	FROM log l";
 	
 	public function __construct() {

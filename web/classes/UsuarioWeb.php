@@ -1,7 +1,6 @@
 <?php
 
 include_once('mysql.class.php');
-include_once('Acceso.php');
 
 class UsuarioWeb
 {

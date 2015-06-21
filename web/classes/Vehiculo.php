@@ -20,7 +20,8 @@ class Vehiculo
 	private $_fecha_modificacion;
 	private $_borrado;
 	
-	private static $_str_sql = "SELECT v.id_vehiculo AS id, u.nombre AS usuario, ma.descripcion AS marca, mo.descripcion AS modelo,
+	private static $_str_sql = "
+  SELECT v.id_vehiculo AS id, u.nombre AS usuario, ma.descripcion AS marca, mo.descripcion AS modelo,
   c.descripcion AS combustible, tr.descripcion as traccion, v.alias,
   v.patente, v.anio, v.km, v.aire_acondicionado, v.alza_vidrios, v.fecha_modificacion, v.borrado
   FROM vehiculo v

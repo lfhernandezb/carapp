@@ -20,6 +20,7 @@ include_once('../classes/Region.php');
 include_once('../classes/Campania.php');
 include_once('../classes/ZonaRegion.php');
 include_once('../classes/Parametro.php');
+include_once('../classes/Util.php');
 
 
 /***********************************************************************************************************
@@ -54,6 +55,112 @@ class Ajax extends GenericCommand {
 					"        \"fecha_vencimiento_licencia\": \"" . $usuario->fecha_vencimiento_licencia . "\"" .
 					"    }" .
 					"}";
+				
+				echo $data;
+			}
+			else if ($req == 'getUsuarioPagina') {
+				
+				$registros_por_pagina = 10;
+				$search_result = null;
+				
+				// se solicita la pagina 'page_num' del listado de usuarios en 'GestionaUsuarios'
+				$page_num = $fc->request->page_num;
+				
+				// obtengo desde donde se hizo la consulta para obtener los parametros
+				
+				$search_keyword = HTTP_session::get('search_keyword_usuario');
+				
+				if (isset($search_keyword)) {
+					// busqueda por texto en esquina superior izquierda
+					$search_result = Usuario::seekSpecial($db, $search_keyword, 'u.id_usuario', 'ASC', $page_num * $registros_por_pagina, $registros_por_pagina, false);
+			
+					if (!is_array($search_result->data)) {
+						
+					}
+					
+					
+				}
+				else {
+					
+					$search_keyword = HTTP_session::get('search_keyword_usuario_alt');
+									
+					if (isset($search_keyword)) {
+						
+						$parameters = array();						
+						
+						if (isset($search_keyword['activo']) && isset($search_keyword['dias'])) {
+							$activo = $search_keyword['activo'];
+							$dias = $search_keyword['dias'];
+							$parameters['activo'] = $dias;
+							$this->addVar('activo', $activo);
+							$this->addVar('dias', $dias);
+						}
+						
+						$auto = $search_keyword['auto'];
+						
+						if (isset($auto)) {
+							$auto = $search_keyword['auto'];
+							$parameters['auto'] = '';
+							$this->addVar('auto', $auto);
+						}
+						
+						$km = $search_keyword['km'];
+						
+						if (isset($km)) {
+							$km = $search_keyword['km'];
+							$parameters['km'] = '';
+							$this->addVar('km', $km);
+						}
+						
+						$parameters['no borrado'] = null;
+						
+						//$parameters['identificado'] = null;
+						
+						$search_result = Usuario::seek($db, $parameters, 'u.id_usuario', 'ASC', $page_num * $registros_por_pagina, $registros_por_pagina, false);
+
+						if (!is_array($search_result->data)) {
+							
+						}
+					}
+					else {
+						throw new Exception('No se pudo determinar el criterio de busqueda', -1);
+					}
+				}
+				
+				$data = "";
+				
+				foreach ($search_result->data as $usuario) {
+					/*
+					ob_start();
+					var_dump($usuario);
+					$result = ob_get_clean();
+					
+					Util::write_to_log("search_keyword " . $result);
+					*/
+					$data .=
+						"    		    	<tr>\n" .
+						"	                    <td></td>\n" .
+						"	                    <td></td>\n" .
+						"	                    <td>" . htmlentities($usuario['nombre']) . "</td>\n" .
+						"	                    <td>{$usuario['correo']}</td>\n" .
+						"\n" .	            
+						"      	            	<td>No</td>\n" .
+						"\n" .								
+						"       				<td>\n" .
+						"\n" .						
+						"							<a href=\"#\" onClick=\"detalleUsuario({$usuario['id']}); return false\"><img src=\"images/detail.png\" alt=\"Detalle\" title=\"Detalle\" border=\"0\" /></a>\n" .
+						"\n" .
+						"							<a href=\"?do=VerVehiculos&id={$usuario['id']}\"><img src=\"images/car.png\" alt=\"\" title=\"Ver Veh&iacute;culos\" border=0 width=16 height=16 /></a>\n" .
+						"\n" .	
+						"							<a href=\"?do=VerLogs&id={$usuario['id']}\"><img src=\"images/log.png\" alt=\"\" title=\"Ver Logs\" border=0 width=16 height=16 /></a>\n" .
+						"\n" .
+						"							<!--a href=\"{$usuario['id']}\" class=\"confirm_delete\"><img src=\"images/trash.png\" alt=\"Elimina Usuario\" title=\"Elimina Usuario\" border=\"0\" /></a-->\n" .
+						"\n" .
+						"			            </td>\n" .
+						"	                </tr>\n";				
+				}
+				
+				HTTP_session::set('pagina_usuario', $page_num);
 				
 				echo $data;
 			}
@@ -122,11 +229,11 @@ class Ajax extends GenericCommand {
 				
 				$data =
 					"{" .
-					"	\"proveedor\": {" .
+					"	\"campania\": {" .
 					"        \"descripcion\": \"" . htmlentities($campania->descripcion) . "\"," .
 					"        \"activa\": \"" . $campania->activa . "\"," .
 					"        \"condicion\": \"" . $campania->condicion . "\"," .
-					"        \"detalle\": \"" . $campania->detalle . "\"," .
+					"        \"detalle\": \"" . mysql_real_escape_string(htmlentities($campania->detalle)) . "\"," .
 					"        \"fecha_inicio\": \"" . $campania->fecha_inicio . "\"," .
 					"        \"fecha_fin\": \"" . $campania->fecha_fin . "\"," .
 					"        \"periodicidad\": \"" . $campania->periodicidad . "\"," .

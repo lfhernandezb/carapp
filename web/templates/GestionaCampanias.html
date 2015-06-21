@@ -83,8 +83,14 @@
              		window.location = "<{$receiver}>";
              	}
              	else {
-             		// error en ajax
-            	    alert("An error occured: " + xhr.status + " " + xhr.statusText);
+					// error en ajax
+					if (xhr.status == 200) {
+						//$('tbody').children().remove();
+						$('tbody').html(xhr.responseText);
+					}
+					else {
+						alert("An error occured: " + xhr.status + " " + xhr.statusText);
+					}
              	}
              },
              success: function(output_string){

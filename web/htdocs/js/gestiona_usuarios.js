@@ -2,7 +2,7 @@
 		
 		//$('.ask').jConfirmAction();
 				
-		paginacion();
+		//paginacion();
 		
 		$('#dialog').dialog({
 		    autoOpen: false,
