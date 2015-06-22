@@ -1,8 +1,6 @@
 <?php
 
 include_once('GenericCommand.php');
-include_once('../classes/Repuesto.php');
-include_once('../classes/Plataforma.php');
 include_once('../classes/Vehiculo.php');
 
 class VerVehiculos extends GenericCommand{
@@ -25,6 +23,8 @@ class VerVehiculos extends GenericCommand{
 		if (isset($fc->request->id)) {
 			
 			$exito = null;
+			
+			$parameters = array();
 			
 			// guardo el valor de busqueda para utilizarlo en "volver al listado" en "edita usuario"
 			

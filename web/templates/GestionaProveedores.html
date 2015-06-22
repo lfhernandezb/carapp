@@ -303,9 +303,9 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
         
     <h2>B&uacute;squeda de Proveedores</h2>
                     
- 		<div class="form">
+ 		<!--div class="form">
          	<form action="<{$receiver}>?do=GestionaProveedores" method="post" class="niceform" id="edita_proveedor">
-				<!--input type="hidden" name="search_alt" id="search_alt" value="1" /-->
+				
 				<fieldset>
                     <dl>
                         <dt><label for="activo">Activo:</label></dt>
@@ -349,171 +349,65 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     
     			</fieldset>
     		</form>
-         </div>           
+         </div-->           
                     
 		<!-- the input fields that will hold the variables we will use -->  
 		<input type='hidden' id='current_page' />  
 		<input type='hidden' id='show_per_page' />  
                     
-<table id="rounded-corner" summary="2007 Major IT Companies' Profit">
-    <thead>
-    	<tr>
-       		<th scope="col" class="rounded-company">Nombre</th>
-            <th scope="col" class="rounded">Direcci&oacute;n</th>
-            <th scope="col" class="rounded-q4">Acciones</th>
-        </tr>
-    </thead>
-    <tfoot>
-    	<tr>
-	        <{if isset($exito)}>
-	           <{if $exito}>
-	        		<td colspan="5" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registro(s).</em></td>
-				<{/if}>
-			<{else}>
-				<td colspan="5" class="rounded-foot-left"><em>&nbsp;</em></td>
-			<{/if}>
-        	<td class="rounded-foot-right">&nbsp;</td>
-
-        </tr>
-    </tfoot>
-    <tbody>
-    	<{foreach from=$search_result item=proveedor}>
-	    	<tr>
-	            <td><{$proveedor.nombre|htmlentities}></td>
-	            <td><{$proveedor.direccion|htmlentities}></td>
-				
-				<td>
-					<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
-	
-							<a href="#" onClick="detalleProveedor(<{$proveedor.id}>); return false"><img src="images/detail.png" alt="Detalle" title="Detalle" border="0" /></a>
-							
-							<a href="<{$receiver}>?do=EditaProveedor&id=<{$proveedor.id}>"><img src="images/edit.png" alt="" title="Edita Proveedor" border=0 width=16 height=16 /></a>
-	
-							<a href="<{$proveedor.id}>" class="confirm_delete"><img src="images/trash.png" alt="Elimina Proveedor" title="Elimina Proveedor" border="0" /></a>
-	
+		<table id="rounded-corner" summary="2007 Major IT Companies' Profit">
+			<thead>
+				<tr>
+					<th scope="col" class="rounded-company">Nombre</th>
+					<th scope="col" class="rounded">Direcci&oacute;n</th>
+					<th scope="col" class="rounded-q4">Acciones</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<{if isset($exito)}>
+					   <{if $exito}>
+							<td colspan="5" class="rounded-foot-left"><em>La b&uacute;squeda arroj&oacute; <{$row_number}> registro(s).</em></td>
+						<{/if}>
+					<{else}>
+						<td colspan="5" class="rounded-foot-left"><em>&nbsp;</em></td>
 					<{/if}>
-	            </td>
-	        </tr>
-        <{/foreach}>
-    </tbody>
-</table>
+					<td class="rounded-foot-right">&nbsp;</td>
 
-    <{if isset($exito)}>
-        <{if $exito && $row_number > 0}>
-          	<!-- An empty div which will be populated using jQuery -->
-	        <div class="pagination">
-				<!--<span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a><a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>-->
-	        </div> 
+				</tr>
+			</tfoot>
+			<tbody>
+				<{foreach from=$search_result item=proveedor}>
+					<tr>
+						<td><{$proveedor.nombre|htmlentities}></td>
+						<td><{$proveedor.direccion|htmlentities}></td>
+						
+						<td>
+							<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
+			
+									<a href="#" onClick="detalleProveedor(<{$proveedor.id}>); return false"><img src="images/detail.png" alt="Detalle" title="Detalle" border="0" /></a>
+									
+									<a href="<{$receiver}>?do=EditaProveedor&id=<{$proveedor.id}>"><img src="images/edit.png" alt="" title="Edita Proveedor" border=0 width=16 height=16 /></a>
+			
+									<a href="<{$receiver}>?do=VerConsultas&id=<{$proveedor.id}>"><img src="images/help.png" alt="" title="Consultas" border=0 width=16 height=16 /></a>
+
+									<a href="<{$proveedor.id}>" class="confirm_delete"><img src="images/trash.png" alt="Elimina Proveedor" title="Elimina Proveedor" border="0" /></a>
+			
+							<{/if}>
+						</td>
+					</tr>
+				<{/foreach}>
+			</tbody>
+		</table>
+
+		<{if isset($exito)}>
+			<{if $exito && $row_number > 0}>
+				<!-- An empty div which will be populated using jQuery -->
+				<div class="pagination">
+					<!--<span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a><a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>-->
+				</div> 
+			<{/if}>
 		<{/if}>
-	<{/if}>
-
-	
-	<!-- movido a left_content
-	<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
-		<a href="<{$receiver}>?do=AgregaProveedor" class="bt_green"><span class="bt_green_lft"></span><strong>Agregar</strong><span class="bt_green_r"></span></a>
-	<{/if}>
-	-->
-	
-    <!--
-     <a href="#" class="bt_blue"><span class="bt_blue_lft"></span><strong>View all items from category</strong><span class="bt_blue_r"></span></a>
-     <a href="#" class="bt_red"><span class="bt_red_lft"></span><strong>Delete items</strong><span class="bt_red_r"></span></a> 
-     
-     
-        <div class="pagination">
-        <span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a>�<a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>
-        </div> 
-     -->
-     <!--
-     <h2>Warning Box examples</h2>
-      
-     <div class="warning_box">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
-     </div>
-     <div class="valid_box">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
-     </div>
-     <div class="error_box">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.
-     </div>  
-    -->
-    <!--  
-     <h2>Nice Form example</h2>
-     
-         <div class="form">
-         <form action="" method="post" class="niceform">
-         
-                <fieldset>
-                    <dl>
-                        <dt><label for="email">Email Address:</label></dt>
-                        <dd><input type="text" name="" id="" size="88.8" /></dd>
-                    </dl>
-                    <dl>
-                        <dt><label for="password">Password:</label></dt>
-                        <dd><input type="text" name="" id="" size="88.8" /></dd>
-                    </dl>
-                    
-                    
-                    <dl>
-                        <dt><label for="gender">Select categories:</label></dt>
-                        <dd>
-                            <select size="1" name="gender" id="">
-                                <option value="">Select option 1</option>
-                                <option value="">Select option 2</option>
-                                <option value="">Select option 3</option>
-                                <option value="">Select option 4</option>
-                                <option value="">Select option 5</option>
-                            </select>
-                        </dd>
-                    </dl>
-                    <dl>
-                        <dt><label for="interests">Select tags:</label></dt>
-                        <dd>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Web design</label>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Business</label>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Simple</label>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">Clean</label>
-                        </dd>
-                    </dl>
-                    
-                    <dl>
-                        <dt><label for="color">Select type</label></dt>
-                        <dd>
-                            <input type="radio" name="type" id="" value="" /><label class="check_label">Basic</label>
-                            <input type="radio" name="type" id="" value="" /><label class="check_label">Medium</label>
-                            <input type="radio" name="type" id="" value="" /><label class="check_label">Premium</label>
-                        </dd>
-                    </dl>
-                    
-                    
-                    
-                    <dl>
-                        <dt><label for="upload">Upload a File:</label></dt>
-                        <dd><input type="file" name="upload" id="upload" /></dd>
-                    </dl>
-                    
-                    <dl>
-                        <dt><label for="comments">Message:</label></dt>
-                        <dd><textarea name="comments" id="comments" rows="5" cols="36"></textarea></dd>
-                    </dl>
-                    
-                    <dl>
-                        <dt><label></label></dt>
-                        <dd>
-                            <input type="checkbox" name="interests[]" id="" value="" /><label class="check_label">I agree to the <a href="#">terms &amp; conditions</a></label>
-                        </dd>
-                    </dl>
-                    
-                     <dl class="submit">
-                    <input type="submit" name="submit" id="submit" value="Submit" />
-                     </dl>
-                     
-                     
-                    
-                </fieldset>
-                
-         </form>
-         </div>  
-      -->
      
      </div><!-- end of right content-->
             

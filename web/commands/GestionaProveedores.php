@@ -15,6 +15,7 @@ class GestionaProveedores extends GenericCommand{
 			"Acciones:<br><br>" .
 			"<img src=\"images/detail.png\" border=0 width=16 height=16 />&nbsp;Detalle Proveedor.<br>" .
 			"<img src=\"images/edit.png\" border=0 width=16 height=16 />&nbsp;Edita Proveedor.<br>" .
+			"<img src=\"images/help.png\" border=0 width=16 height=16 />&nbsp;Consultas donde fue incluido el proveedor.<br>" .
 			"<img src=\"images/trash.png\" border=0 width=16 height=16 />&nbsp;Elimina Proveedor.<br>";
 			
 		$this->addVar('user_help_desk', $user_help_desk);

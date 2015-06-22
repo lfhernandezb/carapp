@@ -155,6 +155,10 @@
 			<class>EditaProveedor</class>
 			<success>EditaProveedor.html</success>
 		</EditaProveedor>
+		<VerConsultas>
+			<class>VerConsultas</class>
+			<success>VerConsultas.html</success>
+		</VerConsultas>
 		<EliminaProveedor>
 			<class>EliminaProveedor</class>
 		</EliminaProveedor>
