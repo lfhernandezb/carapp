@@ -183,7 +183,7 @@ class Ajax extends GenericCommand {
 				$page       = HTTP_session::get('pagina_usuario') + 1;
 				$total      = HTTP_session::get('total_registros_usuario');
 				$limit      = HTTP_session::get('registros_por_pagina_usuario');
-				$links      = 20;
+				$links      = 15;
 				
 			    $last       = ceil( $total / $limit );
 			 
