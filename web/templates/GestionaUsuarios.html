@@ -141,6 +141,9 @@
 		
 		//current page
 		var page_num = $('#current_page').val();
+		
+		// number of links
+		var links_number = 20;
 	  
 		//set the value of our hidden input fields  
 		//$('#current_page').val(0);  
@@ -172,7 +175,7 @@
 		}  
 		navigation_html += '<a class="next_link" href="javascript:next();">Next</a>';  
 		*/
-		
+		/*
 		var navigation_html = '<a class="previous_link" href="javascript:previous();"><< prev</a>';  
 		var current_link = 0;  
 		while(number_of_pages > current_link){  
@@ -180,6 +183,11 @@
 			current_link++;  
 		}  
 		navigation_html += '<a class="next_link" href="javascript:next();">next >></a>';  
+		*/
+		
+		var current_link = 0;
+		
+		navigation_html = create_links(links_number, number_of_pages, current_link + 1);
 		
 		$('.pagination').html(navigation_html);  
 	  
@@ -198,8 +206,34 @@
 		// fin paginacion
 
 	}
+	
+	function create_links(links, last, page) {
+		
+		var start      = ( ( page - links ) > 0 ) ? page - links : 1;
+		var end        = ( ( page + links ) < last ) ? page + links : last;
 
-	function previous(){  
+		var html = '<a class="previous_link" href="javascript:previous();"><< prev</a>';  
+		
+		if (start > 1) {
+			html += '<a class="page_link" href="javascript:go_to_page(0)" longdesc="0">1</a>';
+			html += '<a class="page_link"><span>...</span></a>';
+		}
+		 
+		for (i = start ; i <= end; i++) {  
+			html += '<a class="page_link" href="javascript:go_to_page(' + (i - 1) +')" longdesc="' + (i - 1) +'">'+ i +'</a>';  
+		}  
+
+		if (end < last) {
+			html += '<a class="page_link"><span>...</span></a>';
+			html += '<a class="page_link" href="javascript:go_to_page(' + (last - 1) + ')" longdesc="' + (last - 1) + '">' + last + '</a>';
+		}
+
+		html += '<a class="next_link" href="javascript:next();">next >></a>';
+		
+		return html;
+	}
+
+	function previous() {  
 		  
 		new_page = parseInt($('#current_page').val()) - 1;  
 		//if there is an item before the current active link run the function  
@@ -261,9 +295,13 @@
 					}
 				}
 			 },
-			 success: function(output_string){
+			 success: function(data){
 				//alert(output_string);
-				$('tbody').html(output_string);
+				$('tbody').html(data["tbody"]);
+				$('.pagination').html(data["pagination"]);
+				// update current page
+				$('.page_link[longdesc=' + page_num +']').addClass('current').siblings('.current').removeClass('current');
+
 			 }
 		});
 

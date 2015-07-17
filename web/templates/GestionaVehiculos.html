@@ -114,6 +114,72 @@
 			$('.sidebar_box p').html('<{$user_help_desk}>');
 			
 	}); // end ready
+	
+	function detalleVehiculo(id_vehiculo, id_usuario) {
+		// consulto los detalles del vehiculo
+		var data;
+		var str;
+		
+        $.ajax({
+             async: false,
+             url: "<{$receiver}>?do=Ajax&req=getVehiculo&id_vehiculo=" + id_vehiculo + "&id_usuario=" + id_usuario,
+             type: 'GET',
+             dataType: 'json',
+             error: function(xhr){
+             	if (xhr.status == 401) {
+             		// sesion expirada, redirijo a login
+             		window.location = "<{$receiver}>";
+             	}
+             	else {
+					// error en ajax
+					if (xhr.status == 200) {
+						//$('tbody').children().remove();
+						$('tbody').html(xhr.responseText);
+					}
+					else {
+						alert("An error occured: " + xhr.status + " " + xhr.statusText);
+					}
+             	}
+             },
+             success: function(output_string){
+             	//alert(output_string);
+                 data = output_string;
+             }
+        });
+
+		str =
+			'<table>'+
+			'  <tr>'+
+			'    <th align="left">Marca</h>'+
+			'    <td>'+data.vehiculo.marca+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Modelo</h>'+
+			'    <td>'+data.vehiculo.modelo+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Patente/h>'+
+			'    <td>'+data.vehiculo.patente+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">A&ntilde;o</h>'+
+			'    <td>'+data.vehiculo.anio+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">Km</h>'+
+			'    <td>'+data.vehiculo.km+'</td>'+
+			'  </tr>'+
+			'  <tr>'+
+			'    <th align="left">ID Usuario</h>'+
+			'    <td>'+data.vehiculo.id_usuario+'</td>'+
+			'  </tr>'+
+			'</table>';
+
+		$('#p1').html(str);
+		
+		$('#dialog').dialog('open');
+	}	
+
 </script>
 	
 <script type="text/javascript" src="js/gestiona_vehiculos.js"></script>
@@ -121,7 +187,7 @@
 </head>
 <body>
 <!-- the dialog contents -->
-<div id="dialog" title="Detalle de Repuesto">
+<div id="dialog" title="Detalle de Veh&iacute;culo">
 	<div id="p1"></div>
 </div>
 
@@ -258,6 +324,9 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
         
     <h2>Veh&iacute;culos</h2>
                     
+		<!-- the input fields that will hold the variables we will use -->  
+		<input type='hidden' id='current_page' />  
+		<input type='hidden' id='show_per_page' />  
                     
 <table id="rounded-corner" summary="2007 Major IT Companies' Profit">
     <thead>
@@ -299,6 +368,8 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 					<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
 						<{if ($usuario.nombre_usuario != 'admin')}>
 	
+							<a href="#" onClick="detalleVehiculo(<{$vehiculo.id}>, <{$vehiculo.id_usuario}>); return false"><img src="images/detail.png" alt="Detalle" title="Detalle" border="0" /></a>
+							
 							<!--a href="<{$receiver}>?do=EditaUsuario&id=<{$usuario.id}>"><img src="images/user_edit.png" alt="" title="Edita Usuario" border="0" /></a>
 	
 							<a href="<{$usuario.id}>" class="confirm_reset"><img src="images/reset_password.png" alt="" title="Restablece Contrase&ntilde;a" border="0" /></a>
@@ -313,6 +384,15 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     </tbody>
 </table>
 	
+    <{if isset($exito)}>
+        <{if $exito && $row_number > 0}>
+          	<!-- An empty div which will be populated using jQuery -->
+	        <div class="pagination">
+				<!--<span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a><a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>-->
+	        </div> 
+		<{/if}>
+	<{/if}>
+
 	<!-- movido a left_content
 	<{if ($usuario_aplicacion->nombre_usuario == 'admin')}>
 		<a href="<{$receiver}>?do=AgregaUsuario" class="bt_green"><span class="bt_green_lft"></span><strong>Agregar</strong><span class="bt_green_r"></span></a>

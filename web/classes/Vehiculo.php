@@ -6,6 +6,7 @@ include_once('mysql.class.php');
 class Vehiculo
 {
 	private $_id;
+	private $_id_usuario;
 	private $_usuario;
 	private $_marca;
 	private $_modelo;
@@ -23,7 +24,7 @@ class Vehiculo
 	private static $_str_sql = "
   SELECT v.id_vehiculo AS id, u.nombre AS usuario, ma.descripcion AS marca, mo.descripcion AS modelo,
   c.descripcion AS combustible, tr.descripcion as traccion, v.alias,
-  v.patente, v.anio, v.km, v.aire_acondicionado, v.alza_vidrios, v.fecha_modificacion, v.borrado
+  v.patente, v.anio, v.km, v.aire_acondicionado, v.alza_vidrios, v.fecha_modificacion, v.borrado, v.id_usuario
   FROM vehiculo v
   JOIN modelo mo ON v.id_modelo = mo.id_modelo
   JOIN marca ma ON mo.id_marca = ma.id_marca
@@ -44,6 +45,9 @@ class Vehiculo
         		break;
         	case "usuario" :
         		$this->_usuario = $value;
+        		break;
+        	case "id_usuario" :
+        		$this->_id_usuario = $value;
         		break;
         	case "marca" :
         		$this->_marca = $value;
@@ -99,7 +103,9 @@ class Vehiculo
         		return $this->_id;
         	case "usuario" :
         		return $this->_usuario;
-        	case "marca" :
+        	case "id_usuario" :
+        		return $this->_id_usuario;
+        		case "marca" :
         		return $this->_marca;
         	case "modelo" :
         		return $this->_modelo;
@@ -139,6 +145,7 @@ class Vehiculo
 		
 		$ret->_id = $p_ar[0]['id'];
 		$ret->_usuario = $p_ar[0]['usuario'];
+		$ret->_id_usuario = $p_ar[0]['id_usuario'];
 		$ret->_marca = $p_ar[0]['marca'];
 		$ret->_modelo = $p_ar[0]['modelo'];
 		$ret->_combustible = $p_ar[0]['combustible'];
@@ -227,13 +234,12 @@ class Vehiculo
 		
 	}
 	
-	public static function getByID($p_db, $p_id) {
+	public static function getByID($p_db, $p_id_vehiculo, $p_id_usuario) {
 		$ret = null;
 		
-		$str_sql =
-			"  SELECT id_vehiculo, usuario, modelo, combustible, traccion, patente, 0+fecha_modificacion AS fecha_modificacion, 0+borrado AS borrado" .
-		 	"  FROM vehiculo v" .
-			"  WHERE v.id_vehiculo = '$p_id'";
+		$str_sql = self::$_str_sql .
+			"  WHERE v.id_vehiculo = '$p_id_vehiculo' AND" .
+			"  v.id_usuario = '$p_id_usuario'";
 		
 		//echo '<br>' . $str_sql . '<br>';
 		

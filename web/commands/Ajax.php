@@ -1,24 +1,14 @@
 <?php
 
 include_once('GenericCommand.php');
-include_once('../classes/Proveedor.php');
 include_once('../classes/Ciudad.php');
-include_once('../classes/RadioEstacion.php');
 include_once('../classes/Modelo.php');
 include_once('../classes/Usuario.php');
 include_once('../classes/Ciudad.php');
-include_once('../classes/RadioEstacion.php');
-include_once('../classes/Fabricante.php');
+include_once('../classes/Vehiculo.php');
 include_once('../classes/Modelo.php');
-include_once('../classes/Repuesto.php');
-include_once('../classes/RepuestoMovimiento.php');
-include_once('../classes/TipoRepuestoMovimiento.php');
-include_once('../classes/Motivo.php');
-include_once('../classes/Encargado.php');
-include_once('../classes/MotivoMovimiento.php');
 include_once('../classes/Region.php');
 include_once('../classes/Campania.php');
-include_once('../classes/ZonaRegion.php');
 include_once('../classes/Parametro.php');
 include_once('../classes/Util.php');
 
@@ -58,9 +48,32 @@ class Ajax extends GenericCommand {
 				
 				echo $data;
 			}
+			else if ($req == 'getVehiculo') {
+				// se solicita el detalle de un vehiculo
+				$id_vehiculo = $fc->request->id_vehiculo;
+				$id_usuario = $fc->request->id_usuario;
+				
+				$vehiculo = Vehiculo::getById($db, $id_vehiculo, $id_usuario);
+				
+				$data =
+					"{" .
+					"	\"vehiculo\": {" .
+					"        \"marca\": \"" . $vehiculo->marca . "\"," .
+					"        \"modelo\": \"" . $vehiculo->modelo . "\"," .
+					"        \"patente\": \"" . $vehiculo->patente . "\"," .
+					"        \"anio\": \"" . $vehiculo->anio . "\"," .
+					"        \"km\": \"" . $vehiculo->km . "\"," .
+					"        \"id_usuario\": \"" . $vehiculo->id_usuario . "\"" .
+					"    }" .
+					"}";
+				
+				echo $data;
+			}
 			else if ($req == 'getUsuarioPagina') {
 				
 				$registros_por_pagina = 10;
+				$numero_de_links = 25;
+				
 				$search_result = null;
 				
 				// se solicita la pagina 'page_num' del listado de usuarios en 'GestionaUsuarios'
@@ -127,7 +140,10 @@ class Ajax extends GenericCommand {
 					}
 				}
 				
-				$data = "";
+				$data = array();
+				
+				$data['tbody'] = '';
+				$data['pagination'] = '';
 				
 				foreach ($search_result->data as $usuario) {
 					/*
@@ -137,7 +153,7 @@ class Ajax extends GenericCommand {
 					
 					Util::write_to_log("search_keyword " . $result);
 					*/
-					$data .=
+					$data['tbody'] .=
 						"    		    	<tr>\n" .
 						"	                    <td></td>\n" .
 						"	                    <td></td>\n" .
@@ -162,7 +178,43 @@ class Ajax extends GenericCommand {
 				
 				HTTP_session::set('pagina_usuario', $page_num);
 				
-				echo $data;
+				// paginacion
+				
+				$page       = HTTP_session::get('pagina_usuario') + 1;
+				$total      = HTTP_session::get('total_registros_usuario');
+				$limit      = HTTP_session::get('registros_por_pagina_usuario');
+				$links      = 20;
+				
+			    $last       = ceil( $total / $limit );
+			 
+			    $start      = ( ( $page + $links ) < $last ) ? $page : (($links - $last > 0) ? 1 : $last - $links);
+			    $end        = ( ( $page + $links ) < $last ) ? $page + $links : $last;
+			 
+			    $html       = "<a class=\"previous_link\" href=\"javascript:previous();\"><< prev</a>";
+			 
+			    if ( $start > 1 ) {
+			        $html   .= "<a class=\"page_link\" href=\"javascript:go_to_page(0)\" longdesc=\"0\">1</a>";
+			        $html   .= "<a class=\"page_link\"><span>...</span></a>";
+			    }
+			 
+			    for ( $i = $start ; $i <= $end; $i++ ) {
+			        $html   .= "<a class=\"page_link\" href=\"javascript:go_to_page(" . ($i - 1) . ")\" longdesc=\"" . ($i - 1) . "\">" . $i . "</a>";
+			    }
+			 
+			    if ( $end < $last ) {
+			        $html   .= "<a class=\"page_link\"><span>...</span></a>";
+			        $html   .= "<a class=\"page_link\" href=\"javascript:go_to_page(" . ($last - 1) . ")\" longdesc=\"" . ($last - 1) . "\">" . $last . "</a>";
+			    }
+			 
+			    $html       .= "<a class=\"next_link\" href=\"javascript:next();\">next >></a>";
+
+			    HTTP_session::set('html_paginacion', $html);
+			    
+			    $data['pagination'] = $html;
+			    
+			    // fin paginacion
+				
+				echo json_encode($data);
 			}
 			else if ($req == 'getProveedor') {
 				// se solicita el detalle de un proveedor
