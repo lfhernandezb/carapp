@@ -10,6 +10,7 @@ include_once('../classes/Modelo.php');
 include_once('../classes/Region.php');
 include_once('../classes/Campania.php');
 include_once('../classes/Parametro.php');
+include_once('../classes/Proveedor.php');
 include_once('../classes/Util.php');
 
 
