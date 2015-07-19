@@ -145,6 +145,9 @@ class AgregaProveedor extends GenericCommand {
 			// cargo en los textboxes los mismos valores pre submit
 			$fv=array();
 			
+			// para el correcto despliegue
+			$fc->request->detalle_html = htmlentities($fc->request->detalle_html, ENT_QUOTES);
+			
 			$fv[0]="nombre";
 			$fv[1]="direccion";
 			$fv[2]="correo";

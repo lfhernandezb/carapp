@@ -44,7 +44,7 @@ class EditaProveedor extends GenericCommand{
 			$this->addVar('longitud', $proveedor->longitud);
 			$this->addVar('valor_minimo', $proveedor->valor_minimo);
 			$this->addVar('valor_maximo', $proveedor->valor_maximo);
-			$this->addVar('detalle_html', $proveedor->detalle_html);
+			$this->addVar('detalle_html', htmlentities($proveedor->detalle_html, ENT_QUOTES));
 			$this->addVar('url', $proveedor->url);
 			
 			// recuerdo el id para grabar cambios en caso de utilizar repuesto
@@ -163,6 +163,9 @@ class EditaProveedor extends GenericCommand{
 			
 			// cargo en los textboxes los mismos valores pre submit
 			$fv=array();
+			
+			// para el correcto despliegue
+			$fc->request->detalle_html = htmlentities($fc->request->detalle_html, ENT_QUOTES);
 			
 			$fv[0]="nombre";
 			$fv[1]="direccion";
