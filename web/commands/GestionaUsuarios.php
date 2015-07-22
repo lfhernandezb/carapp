@@ -94,6 +94,7 @@ class GestionaUsuarios extends GenericCommand{
 			
 			HTTP_session::set('search_keyword_usuario_alt', array(
 				'activo'			=> $fc->request->activo,
+				'inactivo'			=> $fc->request->inactivo,
 				'dias'				=> $fc->request->dias,
 				'auto'				=> $fc->request->auto,
 				'km'				=> $fc->request->km,
@@ -108,6 +109,11 @@ class GestionaUsuarios extends GenericCommand{
 			if (isset($fc->request->activo) && $dias != '') {
 				$parameters['activo'] = $dias;
 				$fv[]="activo";
+			}
+			
+			if (isset($fc->request->inactivo) && $dias != '') {
+				$parameters['inactivo'] = $dias;
+				$fv[]="inactivo";
 			}
 			
 			$auto = $fc->request->auto;
@@ -215,6 +221,7 @@ class GestionaUsuarios extends GenericCommand{
 			
 			$exito = null;
 			$activo = null;
+			$inactivo = null;
 			$dias = null;
 			$auto = null;
 			$km = null;
@@ -240,6 +247,13 @@ class GestionaUsuarios extends GenericCommand{
 				$dias = $search_keyword['dias'];
 				$parameters['activo'] = $dias;
 				$this->addVar('activo', $activo);
+				$this->addVar('dias', $dias);
+			}
+			else if (isset($search_keyword['inactivo']) && isset($search_keyword['dias'])) {
+				$inactivo = $search_keyword['inactivo'];
+				$dias = $search_keyword['dias'];
+				$parameters['inactivo'] = $dias;
+				$this->addVar('inactivo', $inactivo);
 				$this->addVar('dias', $dias);
 			}
 			

@@ -379,6 +379,9 @@ class Usuario
             else if ($key == 'activo') {
                 $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
             }
+            else if ($key == 'inactivo') {
+                $array_clauses[] = "id_usuario NOT IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
+            }
             else if ($key == 'auto') {
                 $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo)";
             }

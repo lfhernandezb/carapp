@@ -80,6 +80,8 @@ class Ajax extends GenericCommand {
 				// se solicita la pagina 'page_num' del listado de usuarios en 'GestionaUsuarios'
 				$page_num = $fc->request->page_num;
 				
+				Util::write_to_log("page_num " . $page_num);
+				
 				// obtengo desde donde se hizo la consulta para obtener los parametros
 				
 				$search_keyword = HTTP_session::get('search_keyword_usuario');
@@ -107,6 +109,13 @@ class Ajax extends GenericCommand {
 							$dias = $search_keyword['dias'];
 							$parameters['activo'] = $dias;
 							$this->addVar('activo', $activo);
+							$this->addVar('dias', $dias);
+						}
+						else if (isset($search_keyword['inactivo']) && isset($search_keyword['dias'])) {
+							$inactivo = $search_keyword['inactivo'];
+							$dias = $search_keyword['dias'];
+							$parameters['inactivo'] = $dias;
+							$this->addVar('inactivo', $inactivo);
 							$this->addVar('dias', $dias);
 						}
 						

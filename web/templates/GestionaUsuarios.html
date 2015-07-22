@@ -110,18 +110,52 @@
 				
 			}); // end function
 			
-			$(".checkbox").change(function() {
-				if(this.checked) {
-					//Do stuff
-				}
-				else {
-				}
-			}); // end function
-			
 			// texto en USER HELP DESK
 			$('.sidebar_box p').html('<{$user_help_desk}>');
 			
 			paginacion();
+			
+			$('#dialog').dialog({
+				autoOpen: false,
+				height: 280,
+				modal: true,
+				resizable: false,
+				buttons: {
+					'Cerrar': function() {
+						$(this).dialog('close');
+					} /*,
+					'Change Rating': function() {
+						$(this).dialog('close');
+						// Update Rating
+					}
+					*/
+				}
+			});
+			
+			$.NiceJForms.build({
+				imagesPath:"nicejforms/css/images/default/"
+			});
+			
+			$('#nfCheckbox0').click(function() {
+				if($('#activo')[0].checked) {
+					if($('#inactivo')[0].checked) {
+						$('#inactivo')[0].checked = false;
+						$('#nfCheckbox1').removeClass('NFCheck NFh').addClass('NFCheck');
+					}
+					$("#dias").focus();
+				}
+			}); // end function
+			
+			$('#nfCheckbox1').click(function() {
+				if($('#inactivo')[0].checked) {
+					if($('#activo')[0].checked) {
+						$('#activo')[0].checked = false;
+						$('#nfCheckbox0').removeClass('NFCheck NFh').addClass('NFCheck');
+					}
+					$("#dias").focus();
+				}
+			}); // end function
+			
 			
 	}); // end ready
 	
@@ -185,7 +219,7 @@
 		navigation_html += '<a class="next_link" href="javascript:next();">next >></a>';  
 		*/
 		
-		var current_link = 0;
+		var current_link = parseInt(page_num);
 		
 		navigation_html = create_links(links_number, number_of_pages, current_link + 1);
 		
@@ -371,7 +405,7 @@
 	
 </script>
 	
-<script type="text/javascript" src="js/gestiona_usuarios.js"></script>
+<!--script type="text/javascript" src="js/gestiona_usuarios.js"></script-->
 
 </head>
 <body>
@@ -489,9 +523,19 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
                         </dd>
                     </dl>
                     <dl>
+                        <dt><label for="inactivo">Inactivo:</label></dt>
+                        <dd>
+	                            <{if isset($inactivo)}>
+	                            	<input type="checkbox" name="inactivo" id="inactivo" value="" checked="checked" />
+	                            <{else}>
+	                            	<input type="checkbox" name="inactivo" id="inactivo" value="" />
+	                            <{/if}>
+                        </dd>
+                    </dl>
+                    <dl>
                         <dt><label for="dias">D&iacute;as:</label></dt>
                         <dd>
-                            <input type="text" name="dias" value="<{$dias}>">
+                            <input type="text" name="dias" id="dias" value="<{$dias}>">
                         </dd>
                     </dl>
                     <dl>
