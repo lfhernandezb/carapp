@@ -255,7 +255,7 @@ class Vehiculo
 		return $ret;
 		
 	}	
-	
+	/*
 	public static function seekSpecial($p_db, $p_param) {
 		
 		$str_sql = self::$_str_sql .
@@ -281,8 +281,55 @@ class Vehiculo
 		return $ret;
 		
 	}
+	*/
+	public static function seekSpecial($p_db, $p_param, $p_order = null, $p_direction = null, $p_offset = null, $p_limit = null, $p_get_total = false) {
+		
+		$result         = new stdClass();
+		
+		$str_sql = self::$_str_sql .
+			"  WHERE (ma.descripcion LIKE '%$p_param%'" .
+			"  OR mo.descripcion LIKE '%$p_param%'" .
+			"  OR c.descripcion LIKE '%$p_param%'" .
+			"  OR v.patente LIKE '%$p_param%'" .
+			"  OR tr.descripcion LIKE '%$p_param%')" .
+			"  AND u.borrado = b'0'";
+				
+		if ($p_get_total) {
+		
+			$rs = $p_db->Query($str_sql);
+			
+			$num_rows = mysql_num_rows($rs);
+			
+	    	$result->total  = $num_rows;
+		}
+				
+        if (isset($p_order) && isset($p_direction)) {
+        	$str_sql .= " ORDER BY $p_order $p_direction";
+        }
+        
+        if (isset($p_offset) && isset($p_limit)) {
+        	$str_sql .= "  LIMIT $p_offset, $p_limit";
+        }
+		
+        //echo '<br>' . $str_sql . '<br>';
 	
-    public static function seek($db, $parameters, $order, $direction, $offset, $limit) {
+		$data = $p_db->QueryArray($str_sql, MYSQL_ASSOC);
+		
+		if (!is_array($data)) {
+			$data = null;
+
+			if ($p_db->RowCount() != 0) {
+				throw new Exception('Error al obtener registro: ' . $p_db->Error(), $p_db->ErrorNumber(), null);
+			}
+		}
+				
+	    $result->data   = $data;
+	 
+	    return $result;
+		
+	}
+	
+	public static function seek($db, $parameters, $order, $direction, $offset, $limit) {
 		
 		try {
 			$array_clauses = array();

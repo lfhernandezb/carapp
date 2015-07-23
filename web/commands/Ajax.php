@@ -226,6 +226,122 @@ class Ajax extends GenericCommand {
 				
 				echo json_encode($data);
 			}
+			else if ($req == 'getVehiculoPagina') {
+				
+				$registros_por_pagina = 10;
+				$numero_de_links = 15;
+				
+				$search_result = null;
+				
+				// se solicita la pagina 'page_num' del listado de vehiculos en 'GestionaUsuarios'
+				$link_num = $fc->request->link_num;
+				
+				Util::write_to_log("link_num " . $link_num);
+				
+				$exito = null;
+				
+				if ($fc->request->must_refresh == '1') {
+					
+					$search_keyword = $fc->request->search_keyword;
+					
+					// guardo el valor de busqueda para utilizarlo en "ir a pagina" en links de paginacion
+					HTTP_session::set('search_keyword_vehiculo', $fc->request->search_keyword);
+				}
+				else {
+					$search_keyword = HTTP_session::get('search_keyword_vehiculo');
+				}
+				
+				// obtengo el total de registros
+				$search_result = Vehiculo::seekSpecial($db, $search_keyword, 'v.id_vehiculo', 'ASC', 0, 10000, false);
+				
+				// var_dump($search_result);
+				
+				$this->addVar('search_result', $search_result);
+				
+				$row_number = $db->RowCount() === false ? 0 : $db->RowCount();
+				
+				$this->addVar('row_number', $row_number);
+				
+				if ($row_number > 0) {
+				
+					$exito = true;
+					
+					$this->addVar('exito', $exito);
+	
+					
+					// obtengo el set limitado de datos
+					$search_result = Vehiculo::seekSpecial($db, $search_keyword, 'v.id_vehiculo', 'ASC', $link_num * $registros_por_pagina, $registros_por_pagina, false);
+					
+					$data = array();
+					
+					$data['tbody'] = '';
+					$data['pagination'] = '';
+				
+					foreach ($search_result->data as $vehiculo) {
+						/*
+						ob_start();
+						var_dump($vehiculo);
+						$result = ob_get_clean();
+						
+						Util::write_to_log("search_keyword " . $result);
+						*/
+						$data['tbody'] .=
+							"    		    	<tr>\n" .
+							"	                    <td>{$vehiculo['marca']}</td>\n" .
+							"	                    <td>{$vehiculo['modelo']}</td>\n" .
+							"	                    <td>{$vehiculo['patente']}</td>\n" .
+							"	                    <td>{$vehiculo['anio']}</td>\n" .
+							"	                    <td>{$vehiculo['km']}</td>\n" .
+							"\n" .								
+							"       				<td>\n" .
+							"\n" .						
+							"							<a href=\"#\" onClick=\"detalleVehiculo({$vehiculo['id']}, {$vehiculo['id_usuario']}); return false\"><img src=\"images/detail.png\" alt=\"Detalle\" title=\"Detalle\" border=\"0\" /></a>\n" .
+							"\n" .
+							"			            </td>\n" .
+							"	                </tr>\n";				
+					}
+					
+					HTTP_session::set('pagina_vehiculo', $link_num);
+					
+					// paginacion
+					
+					$page       = $link_num + 1;
+					$total      = $row_number;
+					$limit      = $registros_por_pagina;
+					$links      = $numero_de_links;
+					
+				    $last       = ceil( $total / $limit );
+				 
+				    $start      = ( ( $page + $links ) < $last ) ? $page : (($links - $last > 0) ? 1 : $last - $links);
+				    $end        = ( ( $page + $links ) < $last ) ? $page + $links : $last;
+				 
+				    $html       = "<a class=\"previous_link\" href=\"javascript:previous();\"><< prev</a>";
+				 
+				    if ( $start > 1 ) {
+				        $html   .= "<a class=\"page_link\" href=\"javascript:go_to_link(0, 0, null)\" longdesc=\"0\">1</a>";
+				        $html   .= "<a class=\"page_link\"><span>...</span></a>";
+				    }
+				 
+				    for ( $i = $start ; $i <= $end; $i++ ) {
+				        $html   .= "<a class=\"page_link\" href=\"javascript:go_to_link(" . ($i - 1) . ", 0, null)\" longdesc=\"" . ($i - 1) . "\">" . $i . "</a>";
+				    }
+				 
+				    if ( $end < $last ) {
+				        $html   .= "<a class=\"page_link\"><span>...</span></a>";
+				        $html   .= "<a class=\"page_link\" href=\"javascript:go_to_link(" . ($last - 1) . ", 0, null)\" longdesc=\"" . ($last - 1) . "\">" . $last . "</a>";
+				    }
+				 
+				    $html       .= "<a class=\"next_link\" href=\"javascript:next();\">next >></a>";
+	
+				    HTTP_session::set('html_paginacion', $html);
+				    
+				    $data['pagination'] = $html;
+				    
+				    // fin paginacion
+					
+					echo json_encode($data);
+				}
+			}
 			else if ($req == 'getProveedor') {
 				// se solicita el detalle de un proveedor
 				$id_proveedor = $fc->request->id_proveedor;

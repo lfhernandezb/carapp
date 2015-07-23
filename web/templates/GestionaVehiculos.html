@@ -110,11 +110,75 @@
 				
 			}); // end function
 			
+			$(".search_submit").click(function(){
+				go_to_link(0, 1, $('#search_keyword_vehiculo')[0].value);
+			});
+			
 			// texto en USER HELP DESK
 			$('.sidebar_box p').html('<{$user_help_desk}>');
 			
 	}); // end ready
 	
+	function go_to_link(link_num, must_refresh, search_keyword){
+		//get the page link that has longdesc attribute of the current page and add active_page class to it 
+		//and remove that class from previously active page link
+		$('.page_link[longdesc=' + link_num +']').addClass('current').siblings('.current').removeClass('current');  
+		
+		//update the current page input field  
+		$('#current_page').val(link_num);
+		
+		$.ajax({
+			 async: false,
+			 url: "<{$receiver}>?do=Ajax&req=getVehiculoPagina&link_num=" + link_num + "&must_refresh=" + must_refresh + "&search_keyword=" + search_keyword,
+			 type: 'GET',
+			 dataType: 'json',
+			 error: function(xhr){
+				if (xhr.status == 401) {
+					// sesion expirada, redirijo a login
+					window.location = "<{$receiver}>";
+				}
+				else {
+					// error en ajax
+					if (xhr.status == 200) {
+						//$('tbody').children().remove();
+						$('tbody').html(xhr.responseText);
+					}
+					else {
+						alert("An error occured: " + xhr.status + " " + xhr.statusText);
+					}
+				}
+			 },
+			 success: function(data){
+				//alert(output_string);
+				$('tbody').html(data["tbody"]);
+				$('.pagination').html(data["pagination"]);
+				// update current page
+				$('.page_link[longdesc=' + link_num +']').addClass('current').siblings('.current').removeClass('current');
+				$('#current_link').val(link_num);
+			 }
+		});
+
+	}  
+	
+	function previous() {  
+		  
+		new_link = parseInt($('#current_link').val()) - 1;  
+		//if there is an item before the current active link run the function  
+		if($('.current').prev('.page_link').length==true){  
+			go_to_link(new_link, 0, null);  
+		}  
+	  
+	}  
+	  
+	function next(){  
+		new_link = parseInt($('#current_link').val()) + 1;  
+		//if there is an item after the current active link run the function  
+		if($('.current').next('.page_link').length==true){  
+			go_to_link(new_link, 0, null);  
+		}  
+	  
+	}  
+
 	function detalleVehiculo(id_vehiculo, id_usuario) {
 		// consulto los detalles del vehiculo
 		var data;
@@ -158,7 +222,7 @@
 			'    <td>'+data.vehiculo.modelo+'</td>'+
 			'  </tr>'+
 			'  <tr>'+
-			'    <th align="left">Patente/h>'+
+			'    <th align="left">Patente</h>'+
 			'    <td>'+data.vehiculo.patente+'</td>'+
 			'  </tr>'+
 			'  <tr>'+
@@ -206,11 +270,10 @@
     <div class="left_content">
     
     		<div class="sidebar_search">
-	            <form action="<{$receiver}>?do=GestionaVehiculos" method="post" id="buscar">
-		            <!-- <input type="text" name="search_keyword" class="search_input" value="search keyword" onclick="this.value=''" /> -->
+	            <!--form action="<{$receiver}>?do=GestionaVehiculos" method="post" id="buscar"-->
 		            <input type="text" name="search_keyword_vehiculo" id="search_keyword_vehiculo" class="search_input" value="<{$search_keyword_vehiculo}>" />
 		            <input type="image" class="search_submit" src="images/search.png" />
-	            </form>            
+	            <!--/form-->            
             </div>
     
             <div class="sidebarmenu">
@@ -325,7 +388,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     <h2>Veh&iacute;culos</h2>
                     
 		<!-- the input fields that will hold the variables we will use -->  
-		<input type='hidden' id='current_page' />  
+		<input type='hidden' id='current_link' />  
 		<input type='hidden' id='show_per_page' />  
                     
 <table id="rounded-corner" summary="2007 Major IT Companies' Profit">
@@ -384,6 +447,10 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
     </tbody>
 </table>
 	
+	        <div class="pagination">
+				<!--<span class="disabled"><< prev</span><span class="current">1</span><a href="">2</a><a href="">3</a><a href="">4</a><a href="">5</a><a href="">10</a><a href="">11</a><a href="">12</a>...<a href="">100</a><a href="">101</a><a href="">next >></a>-->
+	        </div> 
+
     <{if isset($exito)}>
         <{if $exito && $row_number > 0}>
           	<!-- An empty div which will be populated using jQuery -->
