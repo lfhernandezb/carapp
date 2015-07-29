@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/excel" />
+<meta name="Content-Disposition" content="attachment; filename=export.xls" />
+<title>Sistema de Gesti&oacute;n App MiAuto</title>
+</head>
+<body>
+                    
+	<table id="rounded-corner">
+    	<thead>
+	    	<tr>
+				<th scope="col" class="rounded">ID</th>
+				<th scope="col" class="rounded">Nombre</th>
+	            <th scope="col" class="rounded">Correo</th>
+	            <th scope="col" class="rounded">Calle</th>
+	            <th scope="col" class="rounded">Sector</th>
+	            <th scope="col" class="rounded">Comuna</th>
+	            <th scope="col" class="rounded">Regi&oacute;n</th>
+	            <th scope="col" class="rounded">Pa&iacute;s</th>
+	        </tr>
+    	</thead>
+        <tfoot>
+    	</tfoot>
+    	<tbody>
+
+	        <{foreach from=$search_result item=usuario}>
+	        <tr>	
+	            <td><{$usuario.id}></td>
+	            <td><{$usuario.nombre}></td>
+	            <td><{$usuario.correo}></td>
+	            <td><{$usuario.road}></td>
+	            <td><{$usuario.suburb}></td>
+	            <td><{$usuario.city}></td>
+	            <td><{$usuario.state}></td>
+	            <td><{$usuario.country}></td>
+	        </tr>
+	        <{/foreach}>                    
+        
+    	</tbody>
+	</table>
+	
+</body>
+</html>

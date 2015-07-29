@@ -335,7 +335,7 @@
 				$('.pagination').html(data["pagination"]);
 				// update current page
 				$('.page_link[longdesc=' + page_num +']').addClass('current').siblings('.current').removeClass('current');
-
+				//$('.sidebarmenu').html("<a class=\"menuitem_green\" href=\"#\" onclick=\"javascript:exportar()\">Exportar a Excel</a>");
 			 }
 		});
 
@@ -402,7 +402,19 @@
 		$('#dialog').dialog('open');
 	}	
 	
-	
+    function exportar() {
+    	/*
+        $("#export_plataforma").val($("#plataforma").val());
+        $("#export_region").val($("#region").val());
+        $("#export_ciudad").val($("#ciudad").val());
+        $("#export_re").val($("#re").val());
+
+        $("#export_fabricante").val($("#fabricante").val());
+        $("#export_modelo").val($("#modelo").val());
+        */
+        $("#export").submit();
+    }
+
 </script>
 	
 <!--script type="text/javascript" src="js/gestiona_usuarios.js"></script-->
@@ -413,6 +425,18 @@
 <div id="dialog" title="Detalle de Usuario">
 	<div id="p1"></div>
 </div>
+
+<!-- export form -->
+<form action="<{$receiver}>?do=ExportarUsuarios" method="post" id="export">
+	<!--
+	<input type="hidden" name="plataforma" id="export_plataforma" />
+	<input type="hidden" name="region" id="export_region" />
+	<input type="hidden" name="ciudad" id="export_ciudad" />
+	<input type="hidden" name="re" id="export_re" />
+	<input type="hidden" name="fabricante" id="export_fabricante" />
+	<input type="hidden" name="modelo" id="export_modelo" />
+	-->
+</form>
 
 <div id="main_container">
 
@@ -450,7 +474,13 @@
                 <a class="menuitem_green" href="">Green button</a>
                 
                 <a class="menuitem_red" href="">Red button</a>
-                -->    
+                -->
+		        <{if (isset($exito) && $total_registros > 0)}>
+		           <{if $exito}>
+		        		<a class="menuitem_green" href="#" onclick="javascript:exportar()">Exportar a Excel</a>
+					<{/if}>
+				<{/if}>
+               
             </div>
             
             <{include file="sidebar_box.html"}>

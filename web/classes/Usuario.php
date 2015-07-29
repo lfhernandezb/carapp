@@ -18,8 +18,10 @@ class Usuario
 	private static $_str_sql = "
   SELECT u.id_usuario AS id, u.id_comuna, u.nombre, u.correo, DATE_FORMAT(u.fecha_nacimiento, '%Y-%m-%d') AS fecha_nacimiento,
   0+u.hombre AS hombre, u.telefono, DATE_FORMAT(u.fecha_vencimiento_licencia, '%Y-%m-%d') AS fecha_vencimiento_licencia,
-  DATE_FORMAT(u.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion, 0+u.borrado AS borrado
-  FROM usuario u";
+  DATE_FORMAT(u.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion, 0+u.borrado AS borrado,
+  ui.road, ui.suburb, ui.city, ui.state, ui.country
+  FROM usuario u
+  LEFT JOIN usuario_info ui ON ui.id_usuario = u.id_usuario";
 		
 	public function __construct() {
 		

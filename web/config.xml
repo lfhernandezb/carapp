@@ -142,6 +142,10 @@
 			<class>ActivaCuenta</class>
 			<success>ActivaCuenta.html</success>
 		</ActivaCuenta>
+		<ExportarUsuarios>
+			<class>ExportarUsuarios</class>
+			<success>ExportarUsuarios.html</success>
+		</ExportarUsuarios>
 		<!--*** PROVEEDORES ***-->
 		<GestionaProveedores>
 			<class>GestionaProveedores</class>
