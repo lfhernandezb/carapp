@@ -98,6 +98,18 @@ class AgregaCampania extends GenericCommand {
 						throw new Exception('Error, el JSON no es v&aacute;lido');
 					}
 					
+					// valido la condicion SQL
+					$str_sql = "SELECT * FROM usuario WHERE " . $campania->condicion;
+					
+					$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
+					
+					if (!is_array($ret)) {
+		
+						if ($db->RowCount() != 0) {
+							throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
+						}
+					}
+					
 					// inicio transaccion
 					
 					if (!$db->TransactionBegin()) {
