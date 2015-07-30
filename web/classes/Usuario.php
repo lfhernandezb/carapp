@@ -379,16 +379,16 @@ class Usuario
                 $array_clauses[] = "u.id_usuario = $value";
             }
             else if ($key == 'activo') {
-                $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
+                $array_clauses[] = "u.id_usuario IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
             }
             else if ($key == 'inactivo') {
-                $array_clauses[] = "id_usuario NOT IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
+                $array_clauses[] = "u.id_usuario NOT IN (SELECT DISTINCT(id_usuario) FROM log WHERE fecha_modificacion > DATE_SUB(NOW(), INTERVAL " . $value . " DAY))";
             }
             else if ($key == 'auto') {
-                $array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo)";
+                $array_clauses[] = "u.id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo)";
             }
             else if ($key == 'km') {
-            	$array_clauses[] = "id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo WHERE km > 0)";
+            	$array_clauses[] = "u.id_usuario IN (SELECT DISTINCT(id_usuario) FROM vehiculo WHERE km > 0)";
             }
             else if ($key == 'identificado') {
                 $array_clauses[] = "u.nombre IS NOT NULL AND u.correo IS NOT NULL";

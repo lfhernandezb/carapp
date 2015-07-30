@@ -1,12 +1,8 @@
 <?php
 
 include_once('GenericCommand.php');
-include_once('../classes/Repuesto.php');
-include_once('../classes/Plataforma.php');
-include_once('../classes/Region.php');
-include_once('../classes/Fabricante.php');
-include_once('../classes/Motivo.php');
 include_once('../classes/Usuario.php');
+include_once('../classes/Util.php');
 
 class ExportarUsuarios extends GenericCommand{
 	function execute(){
@@ -15,10 +11,12 @@ class ExportarUsuarios extends GenericCommand{
 		$db = $fc->getLink();
 
 		$search_keyword = HTTP_session::get('search_keyword_usuario', null);
+		
+		Util::write_to_log("search_keyword " . $search_keyword);
 			
 		$search_keyword_alt = HTTP_session::get('search_keyword_usuario_alt', null);
 
-		if (!empty($search_keyword)) {
+		if (isset($search_keyword)) {
 			// submit
 			
 			$exito = null;
@@ -38,7 +36,7 @@ class ExportarUsuarios extends GenericCommand{
 			$this->addVar('exito', $exito);
 			
 		}
-		else if (!empty($search_keyword_alt)) {
+		else if (isset($search_keyword_alt)) {
 			// submit
 			
 			$exito = null;
