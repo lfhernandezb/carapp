@@ -36,6 +36,8 @@ class EditaCampania extends GenericCommand{
 			// llamado desde home
 			$campania = Campania::getByID($db, $id);
 			
+			$reenviar = false;
+			
 			/*
 			// valido el JSON de detalle
 			$json_detalle = json_decode($campania->detalle, true);
@@ -57,6 +59,7 @@ class EditaCampania extends GenericCommand{
 			// cargo en los controles los parametros del campania elegido
 			$this->addVar('descripcion', $campania->descripcion);
 			$this->addVar('activa', $campania->activa);
+			$this->addVar('reenviar', $reenviar);
 			$this->addVar('condicion', $campania->condicion);
 			// para correcto despliegue, htmlenties
 			$this->addVar('detalle', htmlentities($campania->detalle, ENT_QUOTES));
@@ -159,15 +162,17 @@ class EditaCampania extends GenericCommand{
 						throw new Exception('Error, el JSON no es v&aacute;lido');
 					}
 					
-					// valido la condicion SQL
-					$str_sql = "SELECT * FROM usuario WHERE " . $campania->condicion;
-					
-					$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
-					
-					if (!is_array($ret)) {
-		
-						if ($db->RowCount() != 0) {
-							throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
+					if (isset($campania->condicion) && strlen($campania->condicion) > 0) {
+						// valido la condicion SQL
+						$str_sql = "SELECT * FROM usuario WHERE " . $campania->condicion;
+						
+						$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
+						
+						if (!is_array($ret)) {
+			
+							if ($db->RowCount() != 0) {
+								throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
+							}
 						}
 					}
 					
@@ -185,6 +190,20 @@ class EditaCampania extends GenericCommand{
 					// $this->addVar('usuarioPuedeAgregar', $usuarioPuedeAgregar);
 								
 					//$this->addVar('usuarioPuedeUtilizar', $usuarioPuedeUtilizar);
+					
+					$ar_reenviar = $fc->request->reenviar;
+					
+					if (is_array($ar_reenviar)) {
+						if (array_key_exists(0, $ar_reenviar)) {
+							// debo borrar campania_usuario
+							foreach ($campania->getCampaniaUsuario($db) as $cu) {
+								
+								$c_u = CampaniaUsuario::getByID($db, $cu['id']);
+								
+								$c_u->delete($db);
+							}
+						}
+					}					
 					
 					// commit
 					if (!$db->TransactionEnd()) {
@@ -223,14 +242,15 @@ class EditaCampania extends GenericCommand{
 			
 			Util::write_to_log("fc->request->detalle post save " . $fc->request->detalle);
 			
-			$fv[0]="descripcion";
-			$fv[1]="activa";
-			$fv[2]="condicion";
-			$fv[3]="detalle";
-			$fv[4]="fecha_inicio";
-			$fv[5]="dias";
-			$fv[6]="periodicidad";
-			$fv[7]="numero_impresiones";
+			$fv[]="descripcion";
+			$fv[]="activa";
+			$fv[]="reenviar";
+			$fv[]="condicion";
+			$fv[]="detalle";
+			$fv[]="fecha_inicio";
+			$fv[]="dias";
+			$fv[]="periodicidad";
+			$fv[]="numero_impresiones";
 						
 			$this->initFormVars($fv);
 		}

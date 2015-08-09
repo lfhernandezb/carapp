@@ -8,11 +8,11 @@ class CampaniaUsuario
 	private $_id;
 	private $_id_campania;
 	private $_id_usuario;
-	private $_fecha_envio;
+	private $_fecha_sincro;
 	private $_fecha_modificacion;
 	private $_borrado;
 	
-	private static $_str_sql = "SELECT cu.id_campania_usuario AS id, cu.id_usuario, DATE_FORMAT(cu.fecha_envio, '%Y-%m-%d %H:%i:%s') AS fecha_envio, DATE_FORMAT(cu.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion, cu.borrado
+	private static $_str_sql = "SELECT cu.id_campania_usuario AS id, cu.id_usuario, DATE_FORMAT(cu.fecha_sincro, '%Y-%m-%d %H:%i:%s') AS fecha_sincro, DATE_FORMAT(cu.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion
   FROM campania_usuario cu";
 
 	public function __construct() {
@@ -32,14 +32,11 @@ class CampaniaUsuario
         	case "id_usuario" :
         		$this->_id_usuario = $value;
         		break;
-        	case "fecha_envio" :
-        		$this->_fecha_envio = $value;
+        	case "fecha_sincro" :
+        		$this->_fecha_sincro = $value;
         		break;
         	case "fecha_modificacion" :
         		$this->_fecha_modificacion = $value;
-        		break;
-        	case "borrado" :
-        		$this->_borrado = $value;
         		break;
         	default:
 		        $trace = debug_backtrace();
@@ -61,12 +58,10 @@ class CampaniaUsuario
         		return $this->_id_campania;
         	case "id_usuario" :
         		return $this->_id_usuario;
-        	case "fecha_envio" :
-        		return $this->_fecha_envio;
+        	case "fecha_sincro" :
+        		return $this->_fecha_sincro;
         	case "fecha_modificacion" :
         		return $this->_fecha_modificacion;
-        	case "borrado" :
-        		return $this->_borrado;
         }
 
         $trace = debug_backtrace();
@@ -84,9 +79,8 @@ class CampaniaUsuario
 		$ret->_id = $p_ar[0]['id'];
 		$ret->_id_campania = $p_ar[0]['id_campania'];
 		$ret->_id_usuario = $p_ar[0]['id_usuario'];
-		$ret->_fecha_envio = $p_ar[0]['fecha_envio'];
+		$ret->_fecha_sincro = $p_ar[0]['fecha_sincro'];
 		$ret->_fecha_modificacion = $p_ar[0]['fecha_modificacion'];
-		$ret->_borrado = $p_ar[0]['borrado'];
 				
 		return $ret;
 	}
@@ -121,16 +115,13 @@ class CampaniaUsuario
 								
 	        foreach($parameters as $key => $value) {
 	    		if ($key == 'id') {
-	                $array_clauses[] = "cu.id_repuesto = $value";
+	                $array_clauses[] = "cu.id_campania_usuario = $value";
 	            }
-	    		if ($key == 'id_usuario') {
+	    		else if ($key == 'id_usuario') {
 	                $array_clauses[] = "cu.id_usuario = $value";
 	            }
-	            else if ($key == 'borrado') {
-	                $array_clauses[] = "cu.borrado = b'1'";
-	            }
-	            else if ($key == 'no borrado') {
-	                $array_clauses[] = "cu.borrado = b'0'";
+	    		else if ($key == 'id_campania') {
+	                $array_clauses[] = "cu.id_campania = $value";
 	            }
 	            else {
 	            	throw new Exception('Parametro no soportado: ' . $key, null, null);
@@ -174,18 +165,17 @@ class CampaniaUsuario
 			throw new Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
 		}
 	}
-	
+		
 	public function update($p_db) {
 
 		$str_sql =
 			"  UPDATE campania_usuario" .
 			"  SET id_campania = " . (isset($this->_id_campania) ? "'{$this->_id_campania}'" : 'null') . ',' .
-			"  fecha_envio = " . (isset($this->_fecha_envio) ? "'{$this->_fecha_envio}'" : 'null') . ',' .
+			"  fecha_sincro = " . (isset($this->_fecha_sincro) ? "'{$this->_fecha_sincro}'" : 'null') . ',' .
 			"  combustible = " . (isset($this->_combustible) ? "'{$this->_combustible}'" : 'null') . ',' .
 			"  traccion = " . (isset($this->_traccion) ? "'{$this->_traccion}'" : 'null') . ',' .
 			"  patente = " . (isset($this->_patente) ? "'{$this->_patente}'" : 'null') . ',' .
-			"  fecha_modificacion = " . (isset($this->_fecha_modificacion) ? "b'{$this->_fecha_modificacion}'" : 'null') . ',' .
-			"  borrado = " . (isset($this->_borrado) ? "b'{$this->_borrado}'" : 'null') .
+			"  fecha_modificacion = " . (isset($this->_fecha_modificacion) ? "b'{$this->_fecha_modificacion}'" : 'null') .
 			"  WHERE id_campania_usuario = {$this->_id}";
 		
 		//echo '<br>' . $str_sql . '<br>';
@@ -201,7 +191,7 @@ class CampaniaUsuario
 			"  INSERT INTO campania_usuario" .
 			"  (" .
 			"  id_campania," .
-			"  fecha_envio," .
+			"  fecha_sincro," .
 			"  combustible," .
 			"  traccion," .
 			"  patente," .
@@ -210,7 +200,7 @@ class CampaniaUsuario
 			"  VALUES" .
 			"  (" .
 			"  " . (isset($this->_id_campania) ? "'{$this->_id_campania}'" : 'null') . ',' .
-			"  " . (isset($this->_fecha_envio) ? "'{$this->_fecha_envio}'" : 'null') . ',' .
+			"  " . (isset($this->_fecha_sincro) ? "'{$this->_fecha_sincro}'" : 'null') . ',' .
 			"  " . (isset($this->_combustible) ? "'{$this->_combustible}'" : 'null') . ',' .
 			"  " . (isset($this->_traccion) ? "'{$this->_traccion}'" : 'null') . ',' .
 			"  " . (isset($this->_patente) ? "'{$this->_patente}'" : 'null') . ',' .
@@ -229,5 +219,19 @@ class CampaniaUsuario
 		
 	}
 	
+	public function delete($p_db) {
+		
+		$str_sql =
+			"  DELETE" .
+		 	"  FROM campania_usuario" .
+			"  WHERE id_campania_usuario = {$this->_id}";
+		
+		//echo '<br>' . $str_sql . '<br>';
+		
+		if ($p_db->Query($str_sql) === false) {
+			throw new Exception('Error al borrar registro: ' . $p_db->Error(), $p_db->ErrorNumber(), null);
+		}
+				
+	}
 }
 ?>

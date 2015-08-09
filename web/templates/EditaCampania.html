@@ -138,9 +138,17 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
                     <dl>
                         <dt><label for="activa">Activa:</label></dt>
                             <{if $activa}>
-                            	<input type="checkbox" name="activa[0]" id="utiliza_repuesto" value="" checked="checked" />
+                            	<input type="checkbox" name="activa[0]" id="activa" value="" checked="checked" />
                             <{else}>
-                            	<input type="checkbox" name="activa[0]" id="utiliza_repuesto" value="" />
+                            	<input type="checkbox" name="activa[0]" id="activa" value="" />
+                            <{/if}>
+                    </dl>
+                    <dl>
+                        <dt><label for="reenviar">Reenviar:</label></dt>
+                            <{if $reenviar}>
+                            	<input type="checkbox" name="reenviar[0]" id="reenviar" value="" checked="checked" />
+                            <{else}>
+                            	<input type="checkbox" name="reenviar[0]" id="reenviar" value="" />
                             <{/if}>
                     </dl>
                     <dl>

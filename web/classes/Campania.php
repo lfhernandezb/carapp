@@ -1,7 +1,7 @@
 <?php
 
 include_once('mysql.class.php');
-//include_once('Acceso.php');
+include_once('CampaniaUsuario.php');
 
 class Campania
 {
@@ -231,6 +231,14 @@ class Campania
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage(), $e->getCode(), $e->getPrevious());
 		}
+	}
+	
+	public function getCampaniaUsuario($p_db) {
+		$parameters = array();
+		
+		$parameters['id_campania'] = $this->_id;
+		
+		return CampaniaUsuario::seek($p_db, $parameters, 'id_campania_usuario', 'ASC', 0, 10000);
 	}
 	
 	public function update($p_db) {
