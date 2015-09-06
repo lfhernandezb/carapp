@@ -104,6 +104,7 @@ class GestionaCampanias extends GenericCommand{
 			HTTP_session::set('search_keyword_campania', null);
 			
 			$parameters['activa'] = $campania_activa;
+			$parameters['manual'] = null;
 			
 			/*
 			if (isset($fc->request->activo) && $dias != '') {

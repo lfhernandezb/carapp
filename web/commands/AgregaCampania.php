@@ -86,6 +86,7 @@ class AgregaCampania extends GenericCommand {
 				$campania->fecha_fin = $dtc->date_time;
 				$campania->periodicidad = $fc->request->periodicidad;
 				$campania->numero_impresiones = $fc->request->numero_impresiones;
+				$campania->manual = 1; // siempre en campanias agregadas por el mantenedor
 								
 				$status_message = '';
 				

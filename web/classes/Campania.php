@@ -14,11 +14,12 @@ class Campania
 	private $_fecha_fin;
 	private $_periodicidad;
 	private $_numero_impresiones;
+	private $_manual;
 	private $_fecha_modificacion;
 	
 	private static $_str_sql = "SELECT c.id_campania AS id, c.descripcion, 0+c.activa AS activa, c.condicion, c.detalle, 
   DATE_FORMAT(c.fecha_inicio, '%Y-%m-%d') AS fecha_inicio,   DATE_FORMAT(c.fecha_fin, '%Y-%m-%d') AS fecha_fin, c.periodicidad AS periodicidad, 
-  c.numero_impresiones, DATE_FORMAT(c.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion
+  c.numero_impresiones, 0+c.manual AS manual, DATE_FORMAT(c.fecha_modificacion, '%Y-%m-%d %H:%i:%s') AS fecha_modificacion
   FROM campania c";
 
 	public function __construct() {
@@ -56,6 +57,9 @@ class Campania
         	case "numero_impresiones" :
         		$this->_numero_impresiones = $value;
         		break;
+        	case "manual" :
+        		$this->_manual = $value;
+        		break;
         	case "fecha_modificacion" :
         		$this->_fecha_modificacion = $value;
         		break;
@@ -91,6 +95,8 @@ class Campania
         		return $this->_periodicidad;
         	case "numero_impresiones" :
         		return $this->_numero_impresiones;
+        	case "manual" :
+        		return $this->_manual;
         	case "fecha_modificacion" :
         		return $this->_fecha_modificacion;
         }
@@ -116,6 +122,7 @@ class Campania
 		$ret->_fecha_fin = $p_ar[0]['fecha_fin'];
 		$ret->_periodicidad = $p_ar[0]['periodicidad'];
 		$ret->_numero_impresiones = $p_ar[0]['numero_impresiones'];
+		$ret->_manual = $p_ar[0]['manual'];
 		$ret->_fecha_modificacion = $p_ar[0]['fecha_modificacion'];
 				
 		return $ret;
@@ -152,7 +159,7 @@ class Campania
 	public static function seekSpecial($p_db, $p_param) {
 		
 		$str_sql = self::$_str_sql .
-			"  WHERE (c.descripcion LIKE '%$p_param%')";
+			"  WHERE (c.descripcion LIKE '%$p_param%') AND c.manual = true";
 		
 		//echo '<br>' . $str_sql . '<br>';
 		
@@ -183,6 +190,9 @@ class Campania
 	            }
 	    		else if ($key == 'activa') {
 	                $array_clauses[] = "c.activa = $value";
+	            }
+	    		else if ($key == 'manual') {
+	                $array_clauses[] = "c.manual = b'1'";
 	            }
 	            else if ($key == 'borrado') {
 	                $array_clauses[] = "v.borrado = b'1'";
@@ -252,7 +262,8 @@ class Campania
 			"  fecha_inicio = " . (isset($this->_fecha_inicio) ? "STR_TO_DATE('{$this->_fecha_inicio}', '%Y-%m-%d')" : 'null') . ',' .
 			"  fecha_fin = " . (isset($this->_fecha_fin) ? "STR_TO_DATE('{$this->_fecha_fin}', '%Y-%m-%d')" : 'null') . ',' .
 			"  periodicidad = " . (isset($this->_periodicidad) ? "'{$this->_periodicidad}'" : 'null') . ',' .
-			"  numero_impresiones = " . (isset($this->_numero_impresiones) ? "{$this->_numero_impresiones}" : 'null') .
+			"  numero_impresiones = " . (isset($this->_numero_impresiones) ? "{$this->_numero_impresiones}" : 'null') . ',' .
+			"  manual = " . (isset($this->_activa) ? "{$this->_activa}" : 'null') .
 			"  WHERE id_campania = {$this->_id}";
 		
 		//echo '<br>' . $str_sql . '<br>';
@@ -274,7 +285,8 @@ class Campania
 			"  fecha_inicio," .
 			"  fecha_fin," .
 			"  periodicidad," .
-			"  numero_impresiones" .
+			"  numero_impresiones," .
+			"  manual" .
 			"  )" .
 			"  VALUES" .
 			"  (" .
@@ -285,7 +297,8 @@ class Campania
 			"  " . (isset($this->_fecha_inicio) ? "STR_TO_DATE('{$this->_fecha_inicio}', '%Y-%m-%d')" : 'null') . ',' .
 			"  " . (isset($this->_fecha_fin) ? "STR_TO_DATE('{$this->_fecha_fin}', '%Y-%m-%d')" : 'null') . ',' .
 			"  " . (isset($this->_periodicidad) ? "b'{$this->_periodicidad}'" : 'null') . ',' .
-			"  " . (isset($this->_numero_impresiones) ? "{$this->_numero_impresiones}" : 'null') .
+			"  " . (isset($this->_numero_impresiones) ? "{$this->_numero_impresiones}" : 'null') . ',' .
+			"  " . (isset($this->_manual) ? "{$this->_manual}" : 'null') .
 			"  )";
 		
 		//echo '<br>' . $str_sql . '<br>';
