@@ -137,7 +137,7 @@ class EditaCampania extends GenericCommand{
 				echo $fc->request->detalle . '<br>';
 				echo mysql_real_escape_string($fc->request->detalle) . '<br>';
 				*/
-				$campania->condicion = mysql_real_escape_string($fc->request->condicion);
+				
 				$campania->detalle = $fc->request->detalle;
 				$campania->fecha_inicio = $fc->request->fecha_inicio;
 				
@@ -165,7 +165,7 @@ class EditaCampania extends GenericCommand{
 					//Util::write_to_log("condicion : " . $campania->condicion);
 					//Util::write_to_log("strlen condicion : " . strlen($campania->condicion));
 					
-					if (strlen($campania->condicion) > 0) {
+					if (strlen($fc->request->condicion) > 0) {
 						// valido la condicion SQL
 						
 						$str_sql = 
@@ -174,8 +174,7 @@ class EditaCampania extends GenericCommand{
 							"  LEFT JOIN vehiculo v ON v.id_usuario = u.id_usuario" .
 							"  LEFT JOIN usuario_info ui ON ui.id_usuario = u.id_usuario" .
 							"  LEFT JOIN region r ON r.region = ui.state" .
-							"  WHERE u.id_usuario NOT IN (SELECT cu.id_usuario FROM campania_usuario cu WHERE cu.id_campania = $fid)" .
-							"  AND ({$campania->condicion})";
+							"  WHERE {$fc->request->condicion}";
 						
 						$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
 						
@@ -197,6 +196,8 @@ class EditaCampania extends GenericCommand{
 					if (!$db->TransactionBegin()) {
 						throw new Exception('Error al iniciar transaccion: ' . $db->Error(), $db->ErrorNumber(), null);
 					}
+					
+					$campania->condicion = mysql_real_escape_string($fc->request->condicion);
 					
 					$bInTransaction = true;
 					

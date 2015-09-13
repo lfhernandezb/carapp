@@ -73,7 +73,6 @@ class AgregaCampania extends GenericCommand {
 					$campania->activa = 0;
 				}
 				
-				$campania->condicion = mysql_real_escape_string($fc->request->condicion);
 				$campania->detalle = $fc->request->detalle;
 				$campania->fecha_inicio = $fc->request->fecha_inicio;
 				
@@ -99,32 +98,35 @@ class AgregaCampania extends GenericCommand {
 						throw new Exception('Error, el JSON no es v&aacute;lido');
 					}
 					
-					// valido la condicion SQL
-					$str_sql = 
-						"  SELECT DISTINCT(u.id_usuario)" .
-						"  FROM usuario u" .
-						"  LEFT JOIN vehiculo v ON v.id_usuario = u.id_usuario" .
-						"  LEFT JOIN usuario_info ui ON ui.id_usuario = u.id_usuario" .
-						"  LEFT JOIN region r ON r.region = ui.state" .
-						"  WHERE u.id_usuario NOT IN (SELECT cu.id_usuario FROM campania_usuario cu WHERE cu.id_campania = $fid)" .
-						"  AND ({$campania->condicion})";
-					
-					$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
-					
-					Util::write_to_log("is_array : " . is_array($ret));
-					
-					if ($db->Error()) {
-		
-						//if ($db->RowCount() != 0) {
-							throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
-						//}
-					}
-										
+					if (strlen($fc->request->condicion) > 0) {
+						// valido la condicion SQL
+						
+						$str_sql = 
+							"  SELECT DISTINCT(u.id_usuario)" .
+							"  FROM usuario u" .
+							"  LEFT JOIN vehiculo v ON v.id_usuario = u.id_usuario" .
+							"  LEFT JOIN usuario_info ui ON ui.id_usuario = u.id_usuario" .
+							"  LEFT JOIN region r ON r.region = ui.state" .
+							"  WHERE {$fc->request->condicion}";
+						
+						$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
+						
+						Util::write_to_log("is_array : " . is_array($ret));
+						
+						if ($db->Error()) {
+			
+							//if ($db->RowCount() != 0) {
+								throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
+							//}
+						}
+					}					
 					// inicio transaccion
 					
 					if (!$db->TransactionBegin()) {
 						throw new Exception('Error al iniciar transaccion: ' . $db->Error(), $db->ErrorNumber(), null);
 					}
+					
+					$campania->condicion = mysql_real_escape_string($fc->request->condicion);
 					
 					$bInTransaction = true;
 					
