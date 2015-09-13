@@ -162,8 +162,8 @@ class EditaCampania extends GenericCommand{
 						throw new Exception('Error, el JSON no es v&aacute;lido');
 					}
 					
-					Util::write_to_log("condicion : " . $campania->condicion);
-					Util::write_to_log("strlen condicion : " . strlen($campania->condicion));
+					//Util::write_to_log("condicion : " . $campania->condicion);
+					//Util::write_to_log("strlen condicion : " . strlen($campania->condicion));
 					
 					if (strlen($campania->condicion) > 0) {
 						// valido la condicion SQL
@@ -179,9 +179,9 @@ class EditaCampania extends GenericCommand{
 						
 						$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
 						
-						Util::write_to_log("is_array : " . is_array($ret));
+						//Util::write_to_log("is_array : " . is_array($ret));
 						
-						if (!is_array($ret)) {
+						if ($db->Error()) {
 			
 							//if ($db->RowCount() != 0) {
 								throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);

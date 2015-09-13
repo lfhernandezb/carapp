@@ -100,17 +100,26 @@ class AgregaCampania extends GenericCommand {
 					}
 					
 					// valido la condicion SQL
-					$str_sql = "SELECT * FROM usuario WHERE " . $campania->condicion;
+					$str_sql = 
+						"  SELECT DISTINCT(u.id_usuario)" .
+						"  FROM usuario u" .
+						"  LEFT JOIN vehiculo v ON v.id_usuario = u.id_usuario" .
+						"  LEFT JOIN usuario_info ui ON ui.id_usuario = u.id_usuario" .
+						"  LEFT JOIN region r ON r.region = ui.state" .
+						"  WHERE u.id_usuario NOT IN (SELECT cu.id_usuario FROM campania_usuario cu WHERE cu.id_campania = $fid)" .
+						"  AND ({$campania->condicion})";
 					
 					$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
 					
-					if (!is_array($ret)) {
-		
-						if ($db->RowCount() != 0) {
-							throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
-						}
-					}
+					Util::write_to_log("is_array : " . is_array($ret));
 					
+					if ($db->Error()) {
+		
+						//if ($db->RowCount() != 0) {
+							throw new Exception('Error en SQL: ' . $db->Error(), $db->ErrorNumber(), null);
+						//}
+					}
+										
 					// inicio transaccion
 					
 					if (!$db->TransactionBegin()) {
