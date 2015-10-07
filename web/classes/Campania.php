@@ -263,7 +263,7 @@ class Campania
 			"  fecha_fin = " . (isset($this->_fecha_fin) ? "STR_TO_DATE('{$this->_fecha_fin}', '%Y-%m-%d')" : 'null') . ',' .
 			"  periodicidad = " . (isset($this->_periodicidad) ? "'{$this->_periodicidad}'" : 'null') . ',' .
 			"  numero_impresiones = " . (isset($this->_numero_impresiones) ? "{$this->_numero_impresiones}" : 'null') . ',' .
-			"  manual = " . (isset($this->_activa) ? "{$this->_activa}" : 'null') .
+			"  manual = " . (isset($this->_manual) ? "{$this->_manual}" : 'null') .
 			"  WHERE id_campania = {$this->_id}";
 		
 		//echo '<br>' . $str_sql . '<br>';
