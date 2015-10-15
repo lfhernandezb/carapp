@@ -174,6 +174,7 @@ class EditaCampania extends GenericCommand{
 							"  LEFT JOIN vehiculo v ON v.id_usuario = u.id_usuario" .
 							"  LEFT JOIN usuario_info ui ON ui.id_usuario = u.id_usuario" .
 							"  LEFT JOIN region r ON r.region = ui.state" .
+						    "  LEFT JOIN usuario_creacion uc ON uc.id_usuario = u.id_usuario" .
 							"  WHERE {$fc->request->condicion}";
 						
 						$ret = $db->QueryArray($str_sql, MYSQL_ASSOC);
